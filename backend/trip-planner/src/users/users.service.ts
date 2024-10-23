@@ -1,24 +1,32 @@
 
-import { Injectable } from '@nestjs/common';
-
-export type User = any;
+import { HttpException, Injectable } from '@nestjs/common';
+import { SignUpDto } from './dto/signUp.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { User } from './schemas/users.schema';
 
 @Injectable()
 export class UsersService {
-  private readonly users = [
-    {
-      userId: 1,
-      username: 'john',
-      password: 'changeme',
-    },
-    {
-      userId: 2,
-      username: 'maria',
-      password: 'guess',
-    },
-  ];
+  
+    constructor(@InjectModel(User.name) private userModel: Model<User>){}
 
-  async findOne(username: string): Promise<User | undefined> {
-    return this.users.find(user => user.username === username);
-  }
+    async findOne(email: string): Promise<User | undefined> {
+        return this.userModel.findOne({ email }).exec();
+    }
+
+
+    // sign up
+    async signUp( signUpDto: SignUpDto ) : Promise<User>
+    {
+        const newUser =  new this.userModel(signUpDto);
+        return newUser.save();
+    }
+
+
+    // edit preference
+    async patchUserPreference( userId: string, preferences: String[] ) : Promise<User> 
+    {
+        return await this.userModel.findByIdAndUpdate(userId, preferences);
+    }
+
 }
