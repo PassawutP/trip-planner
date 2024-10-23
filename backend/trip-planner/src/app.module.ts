@@ -5,9 +5,11 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth/guard/auth.guard';
+import { PromptModule } from './prompt/prompt.module';
+import { RecordModule } from './record/record.module';
 
 @Module({
-  imports: [AuthModule, UsersModule],
+  imports: [AuthModule, UsersModule, PromptModule, RecordModule],
   controllers: [AppController],
   providers: [
     AppService,
