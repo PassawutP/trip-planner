@@ -39,7 +39,9 @@ const Layout: React.FC = ({ }) => {
   const handleLogin = async () => {
     if (email && password) {
       const jwtToken = await loginUser(email, password);
-      await AsyncStorage.setItem('authToken', 'yourTokenValue');
+      await AsyncStorage.setItem('authToken', jwtToken.access_token);
+      await AsyncStorage.setItem('userId', jwtToken.decodedToken.sub);
+
       setIsAuth(true);
       setShowModal(false);
 
