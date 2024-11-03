@@ -1,13 +1,20 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { StyleSheet, Image, Platform } from 'react-native';
+import { StyleSheet, Image, Platform, Button } from 'react-native';
 
 import { Collapsible } from '@/components/Collapsible';
 import { ExternalLink } from '@/components/ExternalLink';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from '../_layout';
+import { useNavigation } from '@react-navigation/native';
+
+type ExploreScreenProp = StackNavigationProp<RootStackParamList, 'Explore'>;
 
 export default function Explore() {
+  const navigation = useNavigation<ExploreScreenProp>();
+  
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
@@ -84,6 +91,7 @@ export default function Explore() {
           ),
         })}
       </Collapsible>
+      <Button title="Back" onPress={() => navigation.goBack()} />
     </ParallaxScrollView>
   );
 }
