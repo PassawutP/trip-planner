@@ -1,7 +1,9 @@
+import Records from '@/interface/interface';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { Header } from 'react-native/Libraries/NewAppScreen';
+import MessageDto from '@/interface/interface'
 
 const API_BASE_URL = 'http://localhost:3000/';
 
@@ -58,4 +60,22 @@ export const getAllRecords = async () => {
   }
 }
 
-
+export const genTrip = async (messageDto: MessageDto) => {
+  try {
+    if (!messageDto){
+      console.error('MessageDto is null');
+      return;
+    }
+    const token = await AsyncStorage.getItem('authToken');
+    const response = await api.post(`prompt/generate/`, messageDto, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  }
+  catch (error){
+    console.error('Invalid token: ', error);
+    throw error;
+  }
+}
