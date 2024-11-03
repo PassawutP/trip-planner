@@ -21,3 +21,12 @@ export default interface Location {
     entryCost: string,
     timeTravelToNextLocation: string
 }
+
+export default interface MessageDto {
+    region: string;
+    budget: string;
+    tripStart: string;
+    tripEnd: string;
+    peopleNo: string;
+    preferences: string[] | null;
+}
