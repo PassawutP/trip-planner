@@ -11,7 +11,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import { getAllRecords } from '@/api/api';
 import Records from '@/interface/interface';
-import { FlatList } from 'react-native-gesture-handler';
+import { FlatList, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFonts } from 'expo-font';
 
 
@@ -27,7 +27,9 @@ export default function HomeScreen() {
 
   const navigation = useNavigation<HomeScreenProp>();
   const [content, setContent] = useState<Records[]>();
-
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [date, setDate] = useState(new Date());
+  
   const clearAsyncStorage = async() => {
       AsyncStorage.clear();
   }
@@ -35,7 +37,7 @@ export default function HomeScreen() {
   useEffect(() => {
     const checkContent = async () => {
       const storedContent = await AsyncStorage.getItem("storedContent");
-      console.log(storedContent === undefined);
+      console.log(!storedContent);
       if (!storedContent){
         const getContent: Records[] = await getAllRecords();
         await AsyncStorage.setItem("storedContent", JSON.stringify(getContent));
@@ -51,10 +53,11 @@ export default function HomeScreen() {
   const renderTrip: ListRenderItem<Records> = ({ item }) => {
     return (
     <TouchableOpacity key={item._id} style={styles.myTripContainer}>
-      <Text> {item.title} </Text>
-      <Text> {item.startDate} : {item.endDate}</Text>
-      <Text> Location: {item.region} </Text>
-      <Text> Preferences: {item.preference === null ? "None" : item.preference.join(" ,")} </Text>
+      <Text style={{ fontFamily: 'Roboto-Medium', fontSize: 20}}> {item.title} </Text>
+      <Text style={{ fontFamily: 'Roboto-Light', fontSize: 15}}> Starting - {item.startDate.substring(0, 10)}</Text>
+      <Text style={{ fontFamily: 'Roboto-Light', fontSize: 15}}> Ending - {item.endDate.substring(0, 10)}</Text>
+      <Text style={{ fontFamily: 'Roboto-Light', fontSize: 15}}> Location: {item.region} </Text>
+      <Text style={{ fontFamily: 'Roboto-Light', fontSize: 15}}> Preferences: {item.preference === null ? "None" : item.preference.join(" ,")} </Text>
     </TouchableOpacity>
     )
   }
@@ -62,43 +65,45 @@ export default function HomeScreen() {
     return (<ActivityIndicator size="large" color="#0000ff" />);
   }
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={<Image
-        source={require('@/assets/images/partial-react-logo.png')}
-        style={styles.reactLogo}
-      />
-      }>
-      <ThemedView style={styles.newTripContainer}>
-        <View style={styles.verticalCenter}>
-          <Text style={styles.text}>
-            Your own personalized Trip Planner
-          </Text>
-          <Text>
-            Make your gateway unforgettable
-          </Text>
-          <Text>
-            Find a place to breathe, laugh, and truly live
-          </Text>
-          <View style={{ paddingTop: 20 }}>
-            <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Gentrip")}>
-              <Text style={styles.buttonText}>Start your journey</Text>
-            </TouchableOpacity>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ParallaxScrollView
+        headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+        headerImage={<Image
+          source={require('@/assets/images/partial-react-logo.png')}
+          style={styles.reactLogo}
+        />
+        }>
+        <ThemedView style={styles.newTripContainer}>
+          <View style={styles.verticalCenter}>
+            <Text style={styles.text}>
+              Your own personalized Trip Planner
+            </Text>
+            <Text>
+              Make your gateway unforgettable
+            </Text>
+            <Text>
+              Find a place to breathe, laugh, and truly live
+            </Text>
+            <View style={{ paddingTop: 20 }}>
+              <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Gentrip")}>
+                <Text style={styles.buttonText}>Start your journey</Text>
+              </TouchableOpacity>
+            </View>
           </View>
+          <View style={styles.center}>
+            <Image source={require('../../assets/images/travel-clip-art.jpg')} style={styles.image}>
+            </Image>
+          </View>
+        </ThemedView>
+        <View>
+          <View style={styles.line} />
         </View>
-        <View style={styles.center}>
-          <Image source={require('../../assets/images/travel-clip-art.jpg')} style={styles.image}>
-           </Image>
-        </View>
-      </ThemedView>
-      <View>
-        <View style={styles.line} />
-      </View>
-      <Text style={styles.text}> My trip </Text>
-      <FlatList horizontal data={content} renderItem={renderTrip}></FlatList>
-      <Button title='Clear token' onPress={clearAsyncStorage}></Button>
-      <Button title="Explore" onPress={() => navigation.navigate("Explore")}></Button>
-    </ParallaxScrollView>
+        <Text style={styles.text}> My trip </Text>
+        <FlatList horizontal data={content} renderItem={renderTrip}></FlatList>
+        <Button title='Clear token' onPress={clearAsyncStorage}></Button>
+        <Button title="Explore" onPress={() => navigation.navigate("Explore")}></Button>
+      </ParallaxScrollView>
+    </GestureHandlerRootView>
   );
 }
 
@@ -122,11 +127,16 @@ const styles = StyleSheet.create({
   myTripContainer: {
     width: 200,
     height: 300,
-    borderWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowColor: "#000",
+    shadowOffset: {
+        width: 2,
+        height: 0,
+    },
     shadowOpacity: 0.25,
-    elevation: 5
+    shadowRadius: 3.84,
+    elevation: 5,
+    borderColor: "grey",
+    borderWidth: 1
   },
   text: {
     fontFamily: 'Roboto-Medium',
@@ -157,9 +167,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   button: {
-    width: '80%',        // Use percentage width if you want it responsive
-    maxWidth: 200,        // Set a maximum width for the button
-    paddingVertical: 10,  // Vertical padding for height
+    width: '80%',
+    maxWidth: 200,
+    paddingVertical: 10,
     backgroundColor: "#ffa500",
     borderRadius: 5,
     alignItems: 'center',
@@ -169,4 +179,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: 'Roboto-Bold'
   },
+  shadowBox: {
+    shadowColor: "#000",
+    shadowOffset: {
+        width: 0,
+        height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  }
 });
