@@ -8,8 +8,16 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import { useFonts } from "expo-font";
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { NativeSyntheticEvent } from 'react-native';
+import DropDownPicker from 'react-native-dropdown-picker';
+import { genTrip } from "@/api/api";
+import { MessageDto, TripPlanDto } from '@/interface/interface';
 
 type GentripScreenProp = StackNavigationProp<RootStackParamList, 'Gentrip'>;
+
+interface Option {
+    label: string;
+    value: string;
+}
 
 export default function Gentrip() {
     const navigation = useNavigation<GentripScreenProp>();
@@ -18,11 +26,33 @@ export default function Gentrip() {
     const [endDate, setEndDate] = useState(new Date(new Date().setDate(new Date().getDate() + 7)));
     const [showStartPicker, setShowStartPicker] = useState(false);
     const [showEndPicker, setShowEndPicker] = useState(false);
-    const [text, setText] = useState<string>("Kyoto");
+    const [region, setRegion] = useState<string>();
 
-    const [peopleNo, setPeopleNo] = useState();
-    const [budget, setBudget] = useState();
-    const [preferences, setPreferences] = useState<string[]>();
+    const [peopleNo, setPeopleNo] = useState<string | null>(null);
+    const [budget, setBudget] = useState<string | null>(null);
+    const [preferences, setPreferences] = useState<string[] | null>(null);
+
+    const [openPeople, setOpenPeople] = useState(false);
+    const [openBudget, setOpenBudget] = useState(false);
+    const [openPreference, setOpenPreference] = useState(false);
+
+    const [itemPeopleNo, setItemPeopleNo] = useState<Option[]>([
+        {label: '1', value: '1'},
+        {label: '2', value: '2'},
+        {label: '3', value: '3'},
+        {label: '4', value: '4'},
+        {label: '5', value: '5'},
+      ]);
+    const [itemBudget, setItemBudget] = useState<Option[]>([
+        {label: 'Low', value: '10000'},
+        {label: 'Medium', value: '30000'},
+        {label: 'High', value: '50000'},
+      ]);
+    const [itempreferences, setItemPreferences] = useState<Option[]>([
+        {label: 'Beach', value: 'beach'},
+        {label: 'Mountain', value: 'mountain'},
+        {label: 'Photography', value: 'photography'},
+      ]);
 
     const [fontsLoaded] = useFonts({
         'Roboto-Light': require('../../assets/fonts/Roboto-Light.ttf'),
@@ -45,13 +75,37 @@ export default function Gentrip() {
         }
         setShowEndPicker(false);
     };
-
-    const onTextChange = (event: NativeSyntheticEvent<TextInputChangeEventData>, selectedText?: string) => {
-        if (selectedText) {
-            setText(selectedText);
+    
+    const next = () => {
+        console.log(region)
+        if (region && startDate && endDate){
+            setFirstForm(false)
         }
     };
-    
+
+    const submit = async () => {
+        console.log("Before")
+        console.log([region, startDate, endDate, peopleNo, budget, preferences].join(", "))
+        if (region && startDate && endDate && peopleNo && budget && preferences){
+            const messageDto: MessageDto = {
+                region: region,
+                budget: budget,
+                tripStart: startDate.toISOString(),
+                tripEnd: endDate.toISOString(),
+                peopleNo: peopleNo,
+                preferences: preferences
+            }
+            const generatedPrompt: TripPlanDto = await genTrip(messageDto);
+            if (generatedPrompt){
+                navigation.navigate("GeneratedPrompt", { generatedPrompt: generatedPrompt })
+            }
+            else {
+                console.error("Error!")
+            }
+        }
+        console.log("After")
+    }
+
     useEffect( () => {
         startDate.setHours(0, 0, 0, 0)
     },[startDate])
@@ -85,9 +139,9 @@ export default function Gentrip() {
                         <Text style={styles.text}>Where are you heading?</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder="Type your message..."
-                            value={text}
-                            onChange={onTextChange}
+                            placeholder="Type your region..."
+                            value={region}
+                            onChangeText={(text) => setRegion(text)}
                             multiline={true}
                         />
                     </View>
@@ -123,7 +177,7 @@ export default function Gentrip() {
                         )}
                     </View>
                     <View style={styles.horizontalCenter}>
-                        <TouchableOpacity style={styles.button} onPress={() => setFirstForm(false)}>
+                        <TouchableOpacity style={styles.button} onPress={next}>
                             <Text style={styles.buttonText}>Next</Text>
                         </TouchableOpacity>
                     </View>
@@ -131,9 +185,52 @@ export default function Gentrip() {
             ) : (
                 <View>
                     <TouchableOpacity style={styles.navigationBar}>
-                        <AntDesign name="back" size={24} color="black" onPress={() => navigation.goBack()} />
+                        <AntDesign name="back" size={24} color="black" onPress={() => setFirstForm(true)} />
                     </TouchableOpacity>
-                    {/* Additional content can go here when firstForm is false */}
+                    <View style={[styles.centerPadding, { zIndex: 3 }]}>
+                        <Text style={styles.text}>Number of people</Text>
+                        <DropDownPicker
+                            open={openPeople}
+                            value={peopleNo}
+                            items={itemPeopleNo}
+                            setOpen={setOpenPeople}
+                            setValue={setPeopleNo}
+                            setItems={setItemPeopleNo}
+                            placeholder={'Choose number of people'}
+                            multiple={false}
+                        />
+                    </View>
+                    <View style={[styles.centerPadding, { zIndex: 2 }]}>
+                        <Text style={styles.text}>Type of budget</Text>
+                        <DropDownPicker
+                            open={openBudget}
+                            value={budget}
+                            items={itemBudget}
+                            setOpen={setOpenBudget}
+                            setValue={setBudget}
+                            setItems={setItemBudget}
+                            placeholder={'Choose type of budget'}
+                            multiple={false}
+                        />
+                    </View>
+                    <View style={[styles.centerPadding, { zIndex: 1 }]}>
+                        <Text style={styles.text}>Pick perference(s)</Text>
+                        <DropDownPicker
+                            open={openPreference}
+                            value={preferences}
+                            items={itempreferences}
+                            setOpen={setOpenPreference}
+                            setValue={setPreferences}
+                            setItems={setItemPreferences}
+                            placeholder={'Choose type of perference(s)'}
+                            multiple={true}
+                        />
+                    </View>
+                    <View style={styles.horizontalCenter}>
+                        <TouchableOpacity style={styles.button} onPress={submit}>
+                            <Text style={styles.buttonText}>Submit</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             )}
         </SafeAreaView>
@@ -198,5 +295,11 @@ const styles = StyleSheet.create({
         minWidth: 200,
         height: 50,
         paddingHorizontal: 10
+    },
+    centerPadding: {
+        justifyContent: "center",
+        alignItems: "center",
+        height: 100,
+        marginHorizontal: 20
     }
 });

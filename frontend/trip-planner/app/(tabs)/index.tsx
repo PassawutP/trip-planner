@@ -10,7 +10,7 @@ import { RootStackParamList } from '../_layout';
 import { useNavigation } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import { getAllRecords } from '@/api/api';
-import Records from '@/interface/interface';
+import { Records } from '@/interface/interface';
 import { FlatList, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFonts } from 'expo-font';
 
