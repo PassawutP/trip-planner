@@ -1,29 +1,19 @@
-import Records from '@/interface/interface';
+import { Records, MessageDto, JwtPayload, ConfirmTripPlanDto, RecordDto } from '@/interface/interface';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { Header } from 'react-native/Libraries/NewAppScreen';
-import MessageDto from '@/interface/interface'
 
-const API_BASE_URL = 'http://10.0.2.2:3000/';
+const API_BASE_URL = 'http://localhost:3000/';
 
 // Define the axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-interface JwtPayload {
-    sub: string;
-    name: string;
-    username: string;
-    email: string;
-    iat: number;
-    exp: number;
-  }
 
 export const loginUser = async (email: string, password: string) => {
   try {
@@ -37,6 +27,7 @@ export const loginUser = async (email: string, password: string) => {
 };
 
 export const getAllRecords = async () => {
+  console.log("Try")
   try {
     const id = await AsyncStorage.getItem('userId');
     if (!id){
@@ -61,21 +52,45 @@ export const getAllRecords = async () => {
 }
 
 export const genTrip = async (messageDto: MessageDto) => {
+  console.log("Sending messageDto:", messageDto);  // Check the data being sent
   try {
-    if (!messageDto){
-      console.error('MessageDto is null');
+    const token = await AsyncStorage.getItem('authToken');
+    if (!token) {
+      console.error('No token found');
       return;
     }
-    const token = await AsyncStorage.getItem('authToken');
-    const response = await api.post(`prompt/generate/`, messageDto, {
+
+    const response = await api.post(`prompt/generate`, messageDto, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
+    console.log("Response from server:", response.data);  // Log the response
     return response.data;
+  } catch (error) {
+    console.error('Error in genTrip:', error);  // Log the full error
+    throw error;
   }
-  catch (error){
-    console.error('Invalid token: ', error);
+}
+
+export const submitTrip = async (recordDto: RecordDto) => {
+  try {
+    const token = await AsyncStorage.getItem('authToken');
+    const userId = await AsyncStorage.getItem('userId');
+    if (!token) {
+      console.error('No token found');
+      return;
+    }
+
+    const response = await api.post(`record/post/${userId}`, recordDto, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log("Response from server:", response.data);  // Log the response
+    return response.data;
+  } catch (error) {
+    console.error('Error in genTrip:', error);  // Log the full error
     throw error;
   }
 }
