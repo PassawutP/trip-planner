@@ -1,15 +1,21 @@
 import { useEffect, useState } from "react";
-import { HotelDto, LocationDto, TripPlanDto } from "@/interface/interface";
-import { useRoute } from "@react-navigation/native";
+import { HotelDto, LocationDto, Records, TripPlanDto, TripPlanDtoWithDetails } from "@/interface/interface";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import { Button, ListRenderItem, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { FlatList, GestureHandlerRootView } from "react-native-gesture-handler";
 import { submitTrip } from "@/api/api";
 import { RecordDto } from "@/interface/interface";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../_layout";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+type GeneratedPromptScreenProp = StackNavigationProp<RootStackParamList, 'GeneratedPrompt'>;
 
 export default function GeneratedPrompt() {
+    const navigation = useNavigation<GeneratedPromptScreenProp>();
     const route = useRoute();
-    const { generatedPrompt } = route.params as { generatedPrompt: TripPlanDto };
+    const { generatedPrompt } = route.params as { generatedPrompt: TripPlanDtoWithDetails };
     const [selectedHotel, setSelectedHotel] = useState<HotelDto | null>(null);
     
     const [fontsLoaded] = useFonts({
@@ -50,24 +56,40 @@ export default function GeneratedPrompt() {
         </View>
     );
 
-    // const submitPrompt = async () => {
-    //     const recordDto: RecordDto = {
-    //         title: generatedPrompt.;
+    const submitPrompt = async () => {
+        const recordDto: RecordDto = {
+            title: `${generatedPrompt.details.region} Trip`,
 
-    //         region: string;
+            region: generatedPrompt.details.region,
         
-    //         budget: number;
+            budget: Number(generatedPrompt.details.budget),
         
-    //         startDate: Date;
+            startDate: new Date(generatedPrompt.details.tripStart),
         
-    //         endDate: Date;
+            endDate: new Date(generatedPrompt.details.tripEnd),
         
-    //         preference: string[];
+            preference: generatedPrompt.details.preferences,
 
-    //         prompt: ConfirmTripPlanDto;
-    //     };
-    //     await submitTrip( generatedPrompt);
-    // }
+            prompt: {
+                locations: generatedPrompt.locations,
+                hotel: selectedHotel
+            }
+        };
+        const userId = await AsyncStorage.getItem('userId');
+        await submitTrip( recordDto );
+        const trip = await AsyncStorage.getItem("storedContent")
+        if (trip && userId) {
+            const newTrip: Records[] = JSON.parse(trip)
+            newTrip.push( {...recordDto, _id: userId} )
+            await AsyncStorage.setItem("storedContent", JSON.stringify(newTrip))
+        }
+        else if (trip && userId){
+            const newTrip: Records[] = []
+            newTrip.push( {...recordDto, _id: userId} )
+            await AsyncStorage.setItem("storedContent", JSON.stringify(newTrip))
+        }
+        navigation.navigate("Home")
+    }
 
     if (!fontsLoaded) {
         return null;
@@ -101,7 +123,7 @@ export default function GeneratedPrompt() {
                     </View>
                 </>
             )}
-            <Button title="Submit" onPress={() => console.log(generatedPrompt)} />
+            <Button title="Submit" onPress={submitPrompt} />
         </GestureHandlerRootView>
     );
 }

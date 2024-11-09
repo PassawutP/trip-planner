@@ -13,7 +13,7 @@ export type RootStackParamList = {
   Login: undefined;
   Explore: undefined;
   Gentrip: undefined;
-  GeneratedPrompt: { generatedPrompt: TripPlanDto };
+  GeneratedPrompt: { generatedPrompt: TripPlanDtoWithDetails };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();

@@ -10,7 +10,7 @@ import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/dat
 import { NativeSyntheticEvent } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { genTrip } from "@/api/api";
-import { MessageDto, TripPlanDto } from '@/interface/interface';
+import { MessageDto, TripPlanDto, TripPlanDtoWithDetails } from '@/interface/interface';
 
 type GentripScreenProp = StackNavigationProp<RootStackParamList, 'Gentrip'>;
 
@@ -96,8 +96,10 @@ export default function Gentrip() {
                 preferences: preferences
             }
             const generatedPrompt: TripPlanDto = await genTrip(messageDto);
+            const generatedPromptWithDetails: TripPlanDtoWithDetails = { ...generatedPrompt, details: messageDto};
+            // const generatedPromptWithDetails: TripPlanDtoWithDetails = {...generatedPrompt, details: messageDto};
             if (generatedPrompt){
-                navigation.navigate("GeneratedPrompt", { generatedPrompt: generatedPrompt })
+                navigation.navigate("GeneratedPrompt", { generatedPrompt: generatedPromptWithDetails })
             }
             else {
                 console.error("Error!")
