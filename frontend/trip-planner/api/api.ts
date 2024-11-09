@@ -4,7 +4,7 @@ import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { Header } from 'react-native/Libraries/NewAppScreen';
 
-const API_BASE_URL = 'http://localhost:3000/';
+const API_BASE_URL = 'http://10.0.2.2:3000/';
 
 // Define the axios instance
 const api = axios.create({
