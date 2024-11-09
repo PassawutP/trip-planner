@@ -11,7 +11,7 @@ export class RecordDto{
   
     endDate: Date;
   
-    preference: string[];
+    preference: string[]| null;
 
     prompt: ConfirmTripPlanDto;
 }

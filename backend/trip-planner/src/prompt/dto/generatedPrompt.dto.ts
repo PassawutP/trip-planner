@@ -71,5 +71,5 @@ export class ConfirmTripPlanDto{
 
     locations: LocationDto[];
 
-    hotel?: HotelDto; 
+    hotel: HotelDto | null; 
 }
