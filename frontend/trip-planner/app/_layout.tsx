@@ -5,8 +5,9 @@ import Login from './(auth)/login';
 import HomeScreen from './(tabs)';
 import Explore from './(tabs)/explore';
 import Gentrip from './(tabs)/gentrip';
-import { TripPlanDto, TripPlanDtoWithDetails } from '@/interface/interface';
+import { Records, TripPlanDto, TripPlanDtoWithDetails } from '@/interface/interface';
 import GeneratedPrompt from './(tabs)/generatedPrompt';
+import TripDetails from './(tabs)/tripDetails';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -14,6 +15,7 @@ export type RootStackParamList = {
   Explore: undefined;
   Gentrip: undefined;
   GeneratedPrompt: { generatedPrompt: TripPlanDtoWithDetails };
+  TripDetails: { records: Records };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -27,6 +29,7 @@ const App = () => {
         <Stack.Screen name="Explore" component={Explore} />
         <Stack.Screen name="Gentrip" component={Gentrip} />
         <Stack.Screen name="GeneratedPrompt" component={GeneratedPrompt} />
+        <Stack.Screen name="TripDetails" component={TripDetails} />
       </Stack.Navigator>
     </NavigationContainer>
   );

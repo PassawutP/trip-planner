@@ -1,4 +1,5 @@
 import { Image, StyleSheet, Platform, Button, TouchableOpacity, ListRenderItem, Text, View, ActivityIndicator } from 'react-native';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -8,7 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../_layout';
 import { useNavigation } from '@react-navigation/native';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getAllRecords } from '@/api/api';
 import { Records } from '@/interface/interface';
 import { FlatList, GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -31,8 +32,13 @@ export default function HomeScreen() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [date, setDate] = useState(new Date());
   
-  const clearAsyncStorage = async() => {
-      AsyncStorage.clear();
+  const clearAsyncStorage = async () => {
+      await AsyncStorage.clear();
+      navigation.navigate("Login")
+  }
+
+  const getTripDetails = async (item: Records) => {
+    navigation.navigate("TripDetails", { records: item });
   }
 
   useFocusEffect(
@@ -53,7 +59,7 @@ export default function HomeScreen() {
 
   const renderTrip: ListRenderItem<Records> = ({ item }) => {
     return (
-    <TouchableOpacity key={item._id} style={styles.myTripContainer}>
+    <TouchableOpacity key={item._id} style={styles.myTripContainer} onPress={() => {getTripDetails(item)}}>
       <Text style={{ fontFamily: 'Roboto-Medium', fontSize: 20}}> {item.title} </Text>
       <Text style={{ fontFamily: 'Roboto-Light', fontSize: 15}}> Starting - {new Date(item.startDate).toISOString().substring(0, 10)}</Text>
       <Text style={{ fontFamily: 'Roboto-Light', fontSize: 15}}> Ending - {new Date(item.endDate).toISOString().substring(0, 10)}</Text>
@@ -68,16 +74,19 @@ export default function HomeScreen() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ParallaxScrollView
-        headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-        headerImage={<Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
+        headerBackgroundColor={{ light: '#e69e47', dark: '#1D3D47' }}
+        headerImage={
+        <View style={styles.headerContainer}>
+          <Ionicons name="airplane" size={50} color="white" />
+          <TouchableOpacity style={styles.logoutButton} onPress={() => clearAsyncStorage()}>
+            <Text style={styles.logoutText}>Log out</Text>
+          </TouchableOpacity>
+        </View>
         }>
         <ThemedView style={styles.newTripContainer}>
           <View style={styles.verticalCenter}>
             <Text style={styles.text}>
-              Your own personalized Trip Planner
+              Your own personal trip planner
             </Text>
             <Text>
               Make your gateway unforgettable
@@ -101,14 +110,31 @@ export default function HomeScreen() {
         </View>
         <Text style={styles.text}> My trip </Text>
         <FlatList horizontal data={content} renderItem={renderTrip}></FlatList>
-        {/* <Button title='Clear token' onPress={clearAsyncStorage}></Button>
-        <Button title="Explore" onPress={() => navigation.navigate("Explore")}></Button> */}
+        {/* <Button title='Log out' onPress={clearAsyncStorage}></Button> */}
       </ParallaxScrollView>
     </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
+  headerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between', 
+    paddingHorizontal: 20, 
+    alignItems: 'center',
+    alignContent: 'center'
+  },
+  logoutButton: {
+    backgroundColor: 'white', // White background for the logout button
+    borderRadius: 5,
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+  },
+  logoutText: {
+    color: 'orange', // Orange text color
+    fontFamily: 'Roboto-Medium', 
+    fontSize: 16, // Slightly smaller font size
+  },
   titleContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -126,18 +152,16 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   myTripContainer: {
-    width: 200,
-    height: 300,
+    width: 250,
+    minHeight: 200,
     shadowColor: "#000",
-    shadowOffset: {
-        width: 2,
-        height: 0,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 5,
     elevation: 5,
-    borderColor: "grey",
-    borderWidth: 1
+    marginHorizontal: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 10
   },
   text: {
     fontFamily: 'Roboto-Medium',

@@ -52,7 +52,7 @@ export const getAllRecords = async () => {
 }
 
 export const genTrip = async (messageDto: MessageDto) => {
-  console.log("Sending messageDto:", messageDto);  // Check the data being sent
+
   try {
     const token = await AsyncStorage.getItem('authToken');
     if (!token) {
@@ -65,10 +65,10 @@ export const genTrip = async (messageDto: MessageDto) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log("Response from server:", response.data);  // Log the response
+    console.log("Response from server:", response.data);
     return response.data;
   } catch (error) {
-    console.error('Error in genTrip:', error);  // Log the full error
+    console.error('Error in genTrip:', error);
     throw error;
   }
 }
@@ -87,10 +87,10 @@ export const submitTrip = async (recordDto: RecordDto) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log("Response from server:", response.data);  // Log the response
+    console.log("Response from server:", response.data);
     return response.data;
   } catch (error) {
-    console.error('Error in genTrip:', error);  // Log the full error
+    console.error('Error in genTrip:', error);
     throw error;
   }
 }

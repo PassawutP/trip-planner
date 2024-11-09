@@ -36,9 +36,11 @@ export default function GeneratedPrompt() {
             ]}
             onPress={() => handleSelectHotel(item)}
         >
-            <Text style={item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription}>
-                {item.description}
-            </Text>
+            <Text style={item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription}>Hotel name: {item.hotelName}</Text>
+            {/* <Text style={item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription}>Details: {item.description}</Text> */}
+            <Text style={item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription}>Address: {item.hotelAddress}</Text>
+            <Text style={item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription}>Price: {item.price}</Text>
+            <Text style={item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription}>Rating: {item.rating}</Text>
         </TouchableOpacity>
     );
 
@@ -111,7 +113,7 @@ export default function GeneratedPrompt() {
                         />
                     </View>
                     <View style={[styles.horizontalListContainer, lightTheme.background]}>
-                        <Text style={[lightTheme.sectionTitle]}>Recommended Hotels</Text>
+                        <Text style={[lightTheme.sectionTitle, { paddingVertical: 10 }]}>Recommended Hotels</Text>
                         <FlatList
                             horizontal
                             data={generatedPrompt.hotels}
@@ -203,7 +205,6 @@ const styles = StyleSheet.create({
         padding: 15,
         marginHorizontal: 10,
         justifyContent: "center",
-        alignItems: "center",
         shadowColor: "#000",
         shadowOpacity: 0.15,
         shadowOffset: { width: 0, height: 4 },
