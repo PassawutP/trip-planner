@@ -13,7 +13,8 @@ import { getAllRecords } from '@/api/api';
 import { Records } from '@/interface/interface';
 import { FlatList, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFonts } from 'expo-font';
-
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 type HomeScreenProp = StackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -34,30 +35,30 @@ export default function HomeScreen() {
       AsyncStorage.clear();
   }
 
-  useEffect(() => {
-    const checkContent = async () => {
-      const storedContent = await AsyncStorage.getItem("storedContent");
-      console.log(!storedContent);
-      if (!storedContent){
-        const getContent: Records[] = await getAllRecords();
-        await AsyncStorage.setItem("storedContent", JSON.stringify(getContent));
-        setContent(getContent);
-      }
-      else{
-        setContent(JSON.parse(storedContent));
-      }
-    } 
-    checkContent();
-  }, [])
+  useFocusEffect(
+    useCallback(() => {
+      const checkContent = async () => {
+        const storedContent = await AsyncStorage.getItem("storedContent");
+        if (!storedContent) {
+          const getContent: Records[] = await getAllRecords();
+          await AsyncStorage.setItem("storedContent", JSON.stringify(getContent));
+          setContent(getContent);
+        } else {
+          setContent(JSON.parse(storedContent));
+        }
+      };
+      checkContent();
+    }, [])
+  );
 
   const renderTrip: ListRenderItem<Records> = ({ item }) => {
     return (
     <TouchableOpacity key={item._id} style={styles.myTripContainer}>
       <Text style={{ fontFamily: 'Roboto-Medium', fontSize: 20}}> {item.title} </Text>
-      <Text style={{ fontFamily: 'Roboto-Light', fontSize: 15}}> Starting - {item.startDate.substring(0, 10)}</Text>
-      <Text style={{ fontFamily: 'Roboto-Light', fontSize: 15}}> Ending - {item.endDate.substring(0, 10)}</Text>
+      <Text style={{ fontFamily: 'Roboto-Light', fontSize: 15}}> Starting - {new Date(item.startDate).toISOString().substring(0, 10)}</Text>
+      <Text style={{ fontFamily: 'Roboto-Light', fontSize: 15}}> Ending - {new Date(item.endDate).toISOString().substring(0, 10)}</Text>
       <Text style={{ fontFamily: 'Roboto-Light', fontSize: 15}}> Location: {item.region} </Text>
-      <Text style={{ fontFamily: 'Roboto-Light', fontSize: 15}}> Preferences: {item.preference === null ? "None" : item.preference.join(" ,")} </Text>
+      <Text style={{ fontFamily: 'Roboto-Light', fontSize: 15}}> Preferences: {item.preference === null ? "None" : item.preference.join(", ")} </Text>
     </TouchableOpacity>
     )
   }
@@ -100,8 +101,8 @@ export default function HomeScreen() {
         </View>
         <Text style={styles.text}> My trip </Text>
         <FlatList horizontal data={content} renderItem={renderTrip}></FlatList>
-        <Button title='Clear token' onPress={clearAsyncStorage}></Button>
-        <Button title="Explore" onPress={() => navigation.navigate("Explore")}></Button>
+        {/* <Button title='Clear token' onPress={clearAsyncStorage}></Button>
+        <Button title="Explore" onPress={() => navigation.navigate("Explore")}></Button> */}
       </ParallaxScrollView>
     </GestureHandlerRootView>
   );
