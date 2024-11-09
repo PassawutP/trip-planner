@@ -1,14 +1,32 @@
 // Old version
 
-export interface Records {
+// export interface Records {
+//     _id: string,
+//     title: string,
+//     region: string,
+//     startDate: string,
+//     endDate: string,
+//     preference: string[] | null,
+//     user: string,
+//     prompt: ConfirmTripPlanDto
+// }
+
+export interface Records{
     _id: string,
+
     title: string,
+  
     region: string,
-    startDate: string,
-    endDate: string,
-    preference: string[] | null,
-    user: string,
-    prompt: Location[]
+  
+    budget: number,
+  
+    startDate: Date,
+  
+    endDate: Date,
+  
+    preference: string[]| null,
+
+    prompt: ConfirmTripPlanDto
 }
 
 export interface Location {
