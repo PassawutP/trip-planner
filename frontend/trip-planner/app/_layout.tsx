@@ -8,8 +8,10 @@ import Gentrip from './(tabs)/gentrip';
 import { Records, TripPlanDto, TripPlanDtoWithDetails } from '@/interface/interface';
 import GeneratedPrompt from './(tabs)/generatedPrompt';
 import TripDetails from './(tabs)/tripDetails';
+import Register from './(auth)/register';
 
 export type RootStackParamList = {
+  Register: undefined;
   Home: undefined;
   Login: undefined;
   Explore: undefined;
@@ -30,6 +32,7 @@ const App = () => {
         <Stack.Screen name="Gentrip" component={Gentrip} />
         <Stack.Screen name="GeneratedPrompt" component={GeneratedPrompt} />
         <Stack.Screen name="TripDetails" component={TripDetails} />
+        <Stack.Screen name="Register" component={Register} />
       </Stack.Navigator>
     </NavigationContainer>
   );

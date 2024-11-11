@@ -1,63 +1,47 @@
-import { loginUser } from "@/api/api";
+import { loginUser, registerUser } from "@/api/api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, Button, StyleSheet, TouchableOpacity } from "react-native";
+import { ActivityIndicator, Button, StyleSheet, TouchableOpacity } from "react-native";
 import { Modal, Text, TextInput, View } from "react-native";
 import { useNavigation } from '@react-navigation/native';
+import { CompositeNavigationProp } from '@react-navigation/native';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../_layout";
 import { useFonts } from "expo-font";
 
-type LoginScreenProp = StackNavigationProp<RootStackParamList, 'Login'>;
+type RegisterScreenProp = StackNavigationProp<RootStackParamList, 'Register'>;
 
-export default function Login() {
-    const navigation = useNavigation<LoginScreenProp>();
+export default function Register() {
+    const navigation = useNavigation<RegisterScreenProp>();
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const [isAuth, setIsAuth] = useState<boolean>(); 
+    const [username, setUsername] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(true);
-
     const [fontsLoaded] = useFonts({
         'Roboto-Light': require('../../assets/fonts/Roboto-Light.ttf'),
         'Roboto-Medium': require('../../assets/fonts/Roboto-Medium.ttf'),
         'Roboto-Bold': require('../../assets/fonts/Roboto-Bold.ttf'),
     });
 
-    const handleLogin = async () => {
-        if (email && password) {
-          try {
-            const jwtToken = await loginUser(email, password);
-            await AsyncStorage.setItem('authToken', jwtToken.access_token);
-            await AsyncStorage.setItem('userId', jwtToken.decodedToken.sub);
-      
-            setEmail('');
-            setPassword('');
-      
-            navigation.navigate('Home');
-          } catch (error) {
-            console.error('Login error:', error); 
-            Alert.alert('Login Failed', 'Invalid email or password. Please try again.');
-          }
-        } else {
-          Alert.alert('Missing Information', 'Please enter both email and password.');
+    const handleRegister = async () => {
+        if (email && password && username) {
+          const response = await registerUser(email, password, username);
+    
+          navigation.navigate('Login');
         }
-      };
-      
-
-    const navigateRegister = () => {
-        navigation.navigate('Register');
     };
 
     useEffect(() => {
         const checkAuth = async () => {
-            const token = await AsyncStorage.getItem('authToken');
-            if (token) {
-                navigation.navigate('Home');
+            const token = await AsyncStorage.getItem('authToken')
+            if (token){
+                navigation.navigate('Register');
             }
             setLoading(false);
-        };
+        }
         checkAuth();
-    }, []);
+    }, [])
 
     if (loading) {
         return <ActivityIndicator size="large" color="#0000ff" />;
@@ -66,26 +50,32 @@ export default function Login() {
     return (
         <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-                <Text style={styles.title}>Login Form</Text>
+                <Text style={styles.title}>Registration Form</Text>
                 <TextInput
-                    placeholder="Email"
-                    value={email}
-                    onChangeText={setEmail}
-                    style={styles.input}
+                placeholder="Username"
+                value={username}
+                onChangeText={setUsername}
+                style={styles.input}
                 />
                 <TextInput
-                    placeholder="Password"
-                    value={password}
-                    onChangeText={setPassword}
-                    secureTextEntry
-                    style={styles.input}
+                placeholder="Email"
+                value={email}
+                onChangeText={setEmail}
+                style={styles.input}
                 />
-                <TouchableOpacity onPress={navigateRegister}>
-                    <Text>Register new account?</Text>
-                </TouchableOpacity>
+                <TextInput
+                placeholder="Password"
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                style={styles.input}
+                />
+                <Text onPress={() => {navigation.navigate("Login")}}>
+                    Want to login?
+                </Text>
                 <View style={[styles.center, { paddingTop: 20 }]}>
-                    <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                        <Text style={styles.buttonText}>Login</Text>
+                    <TouchableOpacity style={styles.button} onPress={handleRegister}>
+                        <Text style={styles.buttonText}>Register</Text>
                     </TouchableOpacity>
                 </View>
             </View>
@@ -123,15 +113,15 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     buttonText: {
-        color: '#fff',
-        fontSize: 16,
-        fontFamily: 'Roboto-Medium'
+    color: '#fff',
+    fontSize: 16,
+    fontFamily: 'Roboto-Medium'
     },
     title: {
         fontFamily: 'Roboto-Medium',
         fontSize: 24
     },
-    center: {
+    center:{
         alignItems: "center"
     }
 });

@@ -77,15 +77,12 @@ export default function Gentrip() {
     };
     
     const next = () => {
-        console.log(region)
         if (region && startDate && endDate){
             setFirstForm(false)
         }
     };
 
     const submit = async () => {
-        console.log("Before")
-        console.log([region, startDate, endDate, peopleNo, budget, preferences].join(", "))
         if (region && startDate && endDate && peopleNo && budget && preferences){
             const messageDto: MessageDto = {
                 region: region,
@@ -105,7 +102,6 @@ export default function Gentrip() {
                 console.error("Error!")
             }
         }
-        console.log("After")
     }
 
     useEffect( () => {

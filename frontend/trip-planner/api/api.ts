@@ -26,8 +26,18 @@ export const loginUser = async (email: string, password: string) => {
   }
 };
 
+export const registerUser = async (email: string, password: string, username: string) => {
+  try {
+    const preferences: String[] = []
+    const response = await api.post('users/signup', { email: email, password: password, username: username, preferences: preferences });
+    return response;
+  } catch (error) {
+    console.error('Register failed:', error);
+    throw error;
+  }
+};
+
 export const getAllRecords = async () => {
-  console.log("Try")
   try {
     const id = await AsyncStorage.getItem('userId');
     if (!id){
