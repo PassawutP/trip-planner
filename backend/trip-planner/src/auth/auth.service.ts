@@ -15,8 +15,12 @@ export class AuthService {
     pass: string,
   ): Promise<{ access_token: string }> {
     const userInfo = await this.usersService.findOne(email);
+    if (!userInfo || !userInfo.user) {
+        throw new UnauthorizedException('User not found');
+    }
+
     if (userInfo.user?.password !== pass) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Incorrect password');
     }
     const payload = { email: userInfo.user.email, username: userInfo.user.username, sub: userInfo.id };
     return {
