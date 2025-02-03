@@ -21,7 +21,7 @@ interface Option {
 
 export default function Gentrip() {
     const navigation = useNavigation<GentripScreenProp>();
-    const [firstForm, setFirstForm] = useState<boolean>(true);
+    // const [firstForm, setFirstForm] = useState<boolean>(true);
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date(new Date().setDate(new Date().getDate() + 7)));
     const [showStartPicker, setShowStartPicker] = useState(false);
@@ -76,11 +76,11 @@ export default function Gentrip() {
         setShowEndPicker(false);
     };
     
-    const next = () => {
-        if (region && startDate && endDate){
-            setFirstForm(false)
-        }
-    };
+    // const next = () => {
+    //     if (region && startDate && endDate){
+    //         setFirstForm(false)
+    //     }
+    // };
 
     const submit = async () => { 
         if (region && startDate && endDate && peopleNo && budget && preferences){
@@ -128,42 +128,86 @@ export default function Gentrip() {
 
     return (
         <SafeAreaView>
-            {firstForm ? (
+            <TouchableOpacity style={styles.navigationBar}>
+                <AntDesign name="back" size={24} color="black" onPress={() => navigation.goBack()} />
+            </TouchableOpacity>
+            <View style={{ paddingHorizontal: 20, gap: 10 }}>
                 <View>
-                    <TouchableOpacity style={styles.navigationBar}>
-                        <AntDesign name="back" size={24} color="black" onPress={() => navigation.goBack()} />
+                    <Text style={styles.text}>Region</Text>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Type your region..."
+                        value={region}
+                        onChangeText={(text) => setRegion(text)}
+                        multiline={true}
+                    />
+                </View>
+                {/* <View style={styles.horizontalCenter}>
+                    <TouchableOpacity style={styles.button} onPress={next}>
+                        <Text style={styles.buttonText}>Next</Text>
                     </TouchableOpacity>
-                    <View style={styles.center}>
-                        <Text style={styles.text}>Where are you heading?</Text>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Type your region..."
-                            value={region}
-                            onChangeText={(text) => setRegion(text)}
-                            multiline={true}
+                </View> */}
+                <View style={{ zIndex: 3 }}>
+                    <Text style={styles.text}>Number of people</Text>
+                    <DropDownPicker
+                        open={openPeople}
+                        value={peopleNo}
+                        items={itemPeopleNo}
+                        setOpen={setOpenPeople}
+                        setValue={setPeopleNo}
+                        setItems={setItemPeopleNo}
+                        placeholder={'Choose number of people'}
+                        multiple={false}
+                    />
+                </View>
+                <View style={{ zIndex: 2 }}>
+                    <Text style={styles.text}>Type of budget</Text>
+                    <DropDownPicker
+                        open={openBudget}
+                        value={budget}
+                        items={itemBudget}
+                        setOpen={setOpenBudget}
+                        setValue={setBudget}
+                        setItems={setItemBudget}
+                        placeholder={'Choose type of budget'}
+                        multiple={false}
+                    />
+                </View>
+                <View style={{ zIndex: 1 }}>
+                    <Text style={styles.text}>Pick perference(s)</Text>
+                    <DropDownPicker
+                        open={openPreference}
+                        value={preferences}
+                        items={itempreferences}
+                        setOpen={setOpenPreference}
+                        setValue={setPreferences}
+                        setItems={setItemPreferences}
+                        placeholder={'Choose type of perference(s)'}
+                        multiple={true}
+                    />
+                </View>
+                <View>
+                    <Text style={styles.text}>From Date:</Text>
+                    <TouchableOpacity onPress={() => setShowStartPicker(true)}>
+                        <Text>{startDate.toLocaleDateString()}</Text>
+                    </TouchableOpacity>
+                    {showStartPicker && (
+                        <DateTimePicker
+                            value={startDate}
+                            mode="date"
+                            display="default"
+                            onChange={onStartDateChange}
+                            minimumDate={new Date()}
                         />
-                    </View>
-                    <View style={styles.horizontalCenter}>
-                        <Text style={styles.text}>From Date:</Text>
-                        <TouchableOpacity onPress={() => setShowStartPicker(true)}>
-                            <Text>{startDate.toLocaleDateString()}</Text>
-                        </TouchableOpacity>
-                        {showStartPicker && (
-                            <DateTimePicker
-                                value={startDate}
-                                mode="date"
-                                display="default"
-                                onChange={onStartDateChange}
-                                minimumDate={new Date()}
-                            />
-                        )}
-                    </View>
-                    <View style={styles.horizontalCenter}>
-                        <Text style={styles.text}>To Date:</Text>
-                        <TouchableOpacity onPress={() => setShowEndPicker(true)}>
-                            <Text>{endDate.toLocaleDateString()}</Text>
-                        </TouchableOpacity>
-                        {showEndPicker && (
+                    )}
+                </View>
+                <View>
+                    <Text style={styles.text}>To Date:</Text>
+                    <TouchableOpacity onPress={() => setShowEndPicker(true)}>
+                        <Text>{endDate.toLocaleDateString()}</Text>
+                    </TouchableOpacity>
+                    {showEndPicker && (
+                        <View style={{ borderColor: "black", borderWidth: 2}}>
                             <DateTimePicker
                                 value={endDate}
                                 mode="date"
@@ -172,65 +216,15 @@ export default function Gentrip() {
                                 minimumDate={startDate}
                                 maximumDate={new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000)}
                             />
-                        )}
-                    </View>
-                    <View style={styles.horizontalCenter}>
-                        <TouchableOpacity style={styles.button} onPress={next}>
-                            <Text style={styles.buttonText}>Next</Text>
-                        </TouchableOpacity>
-                    </View>
+                        </View>
+                    )}
                 </View>
-            ) : (
-                <View>
-                    <TouchableOpacity style={styles.navigationBar}>
-                        <AntDesign name="back" size={24} color="black" onPress={() => setFirstForm(true)} />
+                <View style={styles.horizontalCenter}>
+                    <TouchableOpacity style={styles.button} onPress={submit}>
+                        <Text style={styles.buttonText}>Submit</Text>
                     </TouchableOpacity>
-                    <View style={[styles.centerPadding, { zIndex: 3 }]}>
-                        <Text style={styles.text}>Number of people</Text>
-                        <DropDownPicker
-                            open={openPeople}
-                            value={peopleNo}
-                            items={itemPeopleNo}
-                            setOpen={setOpenPeople}
-                            setValue={setPeopleNo}
-                            setItems={setItemPeopleNo}
-                            placeholder={'Choose number of people'}
-                            multiple={false}
-                        />
-                    </View>
-                    <View style={[styles.centerPadding, { zIndex: 2 }]}>
-                        <Text style={styles.text}>Type of budget</Text>
-                        <DropDownPicker
-                            open={openBudget}
-                            value={budget}
-                            items={itemBudget}
-                            setOpen={setOpenBudget}
-                            setValue={setBudget}
-                            setItems={setItemBudget}
-                            placeholder={'Choose type of budget'}
-                            multiple={false}
-                        />
-                    </View>
-                    <View style={[styles.centerPadding, { zIndex: 1 }]}>
-                        <Text style={styles.text}>Pick perference(s)</Text>
-                        <DropDownPicker
-                            open={openPreference}
-                            value={preferences}
-                            items={itempreferences}
-                            setOpen={setOpenPreference}
-                            setValue={setPreferences}
-                            setItems={setItemPreferences}
-                            placeholder={'Choose type of perference(s)'}
-                            multiple={true}
-                        />
-                    </View>
-                    <View style={styles.horizontalCenter}>
-                        <TouchableOpacity style={styles.button} onPress={submit}>
-                            <Text style={styles.buttonText}>Submit</Text>
-                        </TouchableOpacity>
-                    </View>
                 </View>
-            )}
+            </View>
         </SafeAreaView>
     );
 }
@@ -250,13 +244,8 @@ const styles = StyleSheet.create({
         paddingLeft: 15
     },
     text: {
-        fontFamily: 'Roboto-Light',
-        fontSize: 24
-    },
-    center: {
-        justifyContent: "center",
-        alignItems: "center",
-        height: 100
+        fontFamily: 'OpenSans_Condensed-Bold',
+        fontSize: 20
     },
     horizontalCenter: {
         flexDirection: "row",
@@ -276,7 +265,7 @@ const styles = StyleSheet.create({
     buttonText: {
         color: '#fff',
         fontSize: 16,
-        fontFamily: 'Roboto-Bold'
+        fontFamily: 'OpenSans_Condensed-Bold',
     },
     input: {
         marginTop: 15,

@@ -9,6 +9,7 @@ import { Records, TripPlanDto, TripPlanDtoWithDetails } from '@/interface/interf
 import GeneratedPrompt from './(tabs)/generatedPrompt';
 import TripDetails from './(tabs)/tripDetails';
 import Register from './(auth)/register';
+import { FontProvider } from '@/provider/FontProvider';
 
 export type RootStackParamList = {
   Register: undefined;
@@ -24,17 +25,19 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const App = () => {
   return (
-    <NavigationContainer independent={true}>
-      <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="Explore" component={Explore} />
-        <Stack.Screen name="Gentrip" component={Gentrip} />
-        <Stack.Screen name="GeneratedPrompt" component={GeneratedPrompt} />
-        <Stack.Screen name="TripDetails" component={TripDetails} />
-        <Stack.Screen name="Register" component={Register} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <FontProvider>
+      <NavigationContainer independent={true}>
+        <Stack.Navigator initialRouteName="Login" screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Login" component={Login} />
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="Explore" component={Explore} />
+          <Stack.Screen name="Gentrip" component={Gentrip} />
+          <Stack.Screen name="GeneratedPrompt" component={GeneratedPrompt} />
+          <Stack.Screen name="TripDetails" component={TripDetails} />
+          <Stack.Screen name="Register" component={Register} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </FontProvider>
   );
 };
 

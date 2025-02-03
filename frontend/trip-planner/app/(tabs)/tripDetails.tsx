@@ -18,11 +18,11 @@ export default function TripDetails({}) {
     
     const renderContent: ListRenderItem<LocationDto> = ({ item }) => (
         <View style={[styles.card, lightTheme.card]}>
-            <Text style={lightTheme.locationTitle}>{item.location}</Text>
-            <Text style={lightTheme.textDescription}>{item.detail}</Text>
-            <Text style={lightTheme.textInfo}>Date: {new Date(item.startDateTime).toISOString().substring(0, 10)}</Text>
-            <Text style={lightTheme.textInfo}>Time: {new Date(item.startDateTime).toISOString().substring(11, 16)} - {new Date(item.endDateTime).toISOString().substring(11, 16)}</Text>
-            <Text style={lightTheme.textInfo}>Entry cost: {item.entryCost}</Text>
+            <Text style={[lightTheme.locationTitle, styles.textTitle]}>{item.location}</Text>
+            <Text style={[lightTheme.textDescription, styles.textDesc]}>{item.detail}</Text>
+            <Text style={[lightTheme.textInfo, styles.textDesc]}>Date: {new Date(item.startDateTime).toISOString().substring(0, 10)}</Text>
+            <Text style={[lightTheme.textInfo, styles.textDesc]}>Time: {new Date(item.startDateTime).toISOString().substring(11, 16)} - {new Date(item.endDateTime).toISOString().substring(11, 16)}</Text>
+            <Text style={[lightTheme.textInfo, styles.textDesc]}>Entry cost: {item.entryCost}</Text>
         </View>
     );
     
@@ -43,18 +43,17 @@ export default function TripDetails({}) {
             <View style={[styles.horizontalListContainer, lightTheme.background]}>
                 { records.prompt.hotel &&
                     <View>
-                        <Text style={[lightTheme.sectionTitle]}>Hotel</Text>
+                        <Text style={[lightTheme.sectionTitle, styles.textTitle]}>Hotel</Text>
                         <View
                             style={[
                                 styles.horizontalContainer,
                                 lightTheme.hotelContainer,
                             ]}
                         >
-                            <Text style={lightTheme.hotelDescription}>Hotel name: {records.prompt.hotel?.hotelName}</Text>
-                            <Text style={lightTheme.hotelDescription}>Description: {records.prompt.hotel?.description}</Text>
-                            <Text style={lightTheme.hotelDescription}>Hotel Address: {records.prompt.hotel?.hotelAddress}</Text>
-                            <Text style={lightTheme.hotelDescription}>Price: {records.prompt.hotel?.price}</Text>
-                            <Text style={lightTheme.hotelDescription}>Rating: {records.prompt.hotel?.rating}</Text>
+                            <Text style={[lightTheme.hotelDescription, styles.textDesc]}>{records.prompt.hotel?.hotelName}</Text>
+                            <Text style={[lightTheme.hotelDescription, styles.textDesc]}>Hotel Address: {records.prompt.hotel?.hotelAddress}</Text>
+                            <Text style={[lightTheme.hotelDescription, styles.textDesc]}>Price: {records.prompt.hotel?.price}</Text>
+                            <Text style={[lightTheme.hotelDescription, styles.textDesc]}>Rating: {records.prompt.hotel?.rating}</Text>
                             {/* <Image source={{ uri: records.prompt.hotel.imageUrl}} style={styles.image}/> */}
                         </View>
                     </View>
@@ -65,6 +64,10 @@ export default function TripDetails({}) {
 }
 
 const styles = StyleSheet.create({
+    hotelName:{
+        fontFamily: 'OpenSans_Condensed-Bold',
+        fontSize: 16
+    },
     navigationBar: {
         shadowColor: "#000",
         shadowOffset: {
@@ -113,11 +116,11 @@ const styles = StyleSheet.create({
         shadowRadius: 5,
     },
     textTitle: {
-        fontFamily: 'Roboto-Bold',
+        fontFamily: 'OpenSans_Condensed-Bold',
         fontSize: 20
     },
     textDesc: {
-        fontFamily: 'Roboto-Light',
+        fontFamily: 'OpenSans_Condensed-Medium',
         fontSize: 15
     },
     boxShadow: {

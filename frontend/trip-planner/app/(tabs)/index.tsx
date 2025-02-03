@@ -16,6 +16,7 @@ import { FlatList, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFonts } from 'expo-font';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
+import { Colors } from '@/constants/Colors';
 
 type HomeScreenProp = StackNavigationProp<RootStackParamList, 'Home'>;
 
@@ -60,11 +61,11 @@ export default function HomeScreen() {
   const renderTrip: ListRenderItem<Records> = ({ item }) => {
     return (
     <TouchableOpacity key={item._id} style={styles.myTripContainer} onPress={() => {getTripDetails(item)}}>
-      <Text style={{ fontFamily: 'Roboto-Medium', fontSize: 20}}> {item.title} </Text>
-      <Text style={{ fontFamily: 'Roboto-Light', fontSize: 15}}> Starting - {new Date(item.startDate).toISOString().substring(0, 10)}</Text>
-      <Text style={{ fontFamily: 'Roboto-Light', fontSize: 15}}> Ending - {new Date(item.endDate).toISOString().substring(0, 10)}</Text>
-      <Text style={{ fontFamily: 'Roboto-Light', fontSize: 15}}> Location: {item.region} </Text>
-      <Text style={{ fontFamily: 'Roboto-Light', fontSize: 15}}> Preferences: {item.preference === null ? "None" : item.preference.join(", ")} </Text>
+      <Text style={[styles.text, {fontSize: 20}]}> {item.title} </Text>
+      <Text style={styles.description}> Starting: {new Date(item.startDate).toISOString().substring(0, 10)}</Text>
+      <Text style={styles.description}> Ending: {new Date(item.endDate).toISOString().substring(0, 10)}</Text>
+      <Text style={styles.description}> Location: {item.region} </Text>
+      <Text style={styles.description}> Preferences: {item.preference === null ? "None" : item.preference.join(", ")} </Text>
     </TouchableOpacity>
     )
   }
@@ -88,10 +89,8 @@ export default function HomeScreen() {
             <Text style={styles.text}>
               Your own personal trip planner
             </Text>
-            <Text>
-              Make your gateway unforgettable
-            </Text>
-            <Text>
+            <Text style={styles.description}>
+              Make your gateway unforgettable. 
               Find a place to breathe, laugh, and truly live
             </Text>
             <View style={{ paddingTop: 20 }}>
@@ -132,7 +131,7 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     color: 'orange', // Orange text color
-    fontFamily: 'Roboto-Medium', 
+    fontFamily: 'OpenSans_Condensed-Bold',
     fontSize: 16, // Slightly smaller font size
   },
   titleContainer: {
@@ -154,18 +153,19 @@ const styles = StyleSheet.create({
   myTripContainer: {
     width: 250,
     minHeight: 200,
-    shadowColor: "#000",
-    shadowOpacity: 0.3,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 5,
-    elevation: 5,
     marginHorizontal: 10,
     paddingHorizontal: 10,
-    paddingVertical: 10
+    paddingVertical: 10,
+    borderWidth: 2,
+    borderRadius: 5
   },
   text: {
-    fontFamily: 'Roboto-Medium',
+    fontFamily: 'OpenSans_Condensed-Bold',
     fontSize: 30
+  },
+  description: {
+    fontFamily: 'OpenSans_SemiCondensed-Regular',
+    fontSize: 16
   },
   newTripContainer: {
     flex: 1,
@@ -201,7 +201,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
-    fontFamily: 'Roboto-Bold'
+    fontFamily: 'OpenSans_Condensed-Bold'
   },
   shadowBox: {
     shadowColor: "#000",

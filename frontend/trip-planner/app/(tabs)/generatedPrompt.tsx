@@ -9,6 +9,7 @@ import { RecordDto } from "@/interface/interface";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../_layout";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import React from "react";
 
 type GeneratedPromptScreenProp = StackNavigationProp<RootStackParamList, 'GeneratedPrompt'>;
 
@@ -17,12 +18,6 @@ export default function GeneratedPrompt() {
     const route = useRoute();
     const { generatedPrompt } = route.params as { generatedPrompt: TripPlanDtoWithDetails };
     const [selectedHotel, setSelectedHotel] = useState<HotelDto | null>(null);
-    
-    const [fontsLoaded] = useFonts({
-        'Roboto-Light': require('../../assets/fonts/Roboto-Light.ttf'),
-        'Roboto-Medium': require('../../assets/fonts/Roboto-Medium.ttf'),
-        'Roboto-Bold': require('../../assets/fonts/Roboto-Bold.ttf'),
-    });
 
     const handleSelectHotel = (hotel: HotelDto) => {
         setSelectedHotel(hotel === selectedHotel ? null : hotel); // Toggle selection
@@ -36,7 +31,7 @@ export default function GeneratedPrompt() {
             ]}
             onPress={() => handleSelectHotel(item)}
         >
-            <Text style={item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription}>Hotel name: {item.hotelName}</Text>
+            <Text style={[item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription, styles.hotelName]}>{item.hotelName}</Text>
             {/* <Text style={item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription}>Details: {item.description}</Text> */}
             <Text style={item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription}>Address: {item.hotelAddress}</Text>
             <Text style={item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription}>Price: {item.price}</Text>
@@ -50,13 +45,13 @@ export default function GeneratedPrompt() {
 
     const renderContent: ListRenderItem<LocationDto> = ({ item }) => (
         <View style={[styles.card, lightTheme.card]}>
-            <Text style={lightTheme.locationTitle}>{item.location}</Text>
-            <Text style={lightTheme.textDescription}>{item.detail}</Text>
-            <Text style={lightTheme.textInfo}>Date: {new Date(item.startDateTime).toISOString().substring(0, 10)}</Text>
-            <Text style={lightTheme.textInfo}>Time: {new Date(item.startDateTime).toISOString().substring(11, 16)} - {new Date(item.endDateTime).toISOString().substring(11, 16)}</Text>
-            <Text style={lightTheme.textInfo}>Entry cost: {item.entryCost}</Text>
+            <Text style={[lightTheme.locationTitle, styles.textTitle]}>{item.location}</Text>
+            <Text style={[lightTheme.textDescription, styles.textDesc]}>{item.detail}</Text>
+            <Text style={[lightTheme.textInfo, styles.textDesc]}>Date: {new Date(item.startDateTime).toISOString().substring(0, 10)}</Text>
+            <Text style={[lightTheme.textInfo, styles.textDesc]}>Time: {new Date(item.startDateTime).toISOString().substring(11, 16)} - {new Date(item.endDateTime).toISOString().substring(11, 16)}</Text>
+            <Text style={[lightTheme.textInfo, styles.textDesc]}>Entry cost: {item.entryCost}</Text>
         </View>
-    );
+    )
 
     const submitPrompt = async () => {
         const recordDto: RecordDto = {
@@ -93,17 +88,13 @@ export default function GeneratedPrompt() {
         navigation.navigate("Home")
     }
 
-    if (!fontsLoaded) {
-        return null;
-    }
-
     return (
         <GestureHandlerRootView style={[{ flex: 1 }]}>
             <TouchableOpacity style={[styles.navigationBar, lightTheme.navigationBar]}>
-                <Text style={lightTheme.navTitle}>Generated Content</Text>
+                <Text style={[lightTheme.navTitle, styles.textTitle]}>Generated Content</Text>
             </TouchableOpacity>
             {generatedPrompt.locations && generatedPrompt.hotels && (
-                <View>
+                <>
                     <View style={styles.listContainer}>
                         <FlatList
                             data={generatedPrompt.locations}
@@ -113,7 +104,7 @@ export default function GeneratedPrompt() {
                         />
                     </View>
                     <View style={[styles.horizontalListContainer, lightTheme.background]}>
-                        <Text style={[lightTheme.sectionTitle, { paddingVertical: 10 }]}>Recommended Hotels</Text>
+                        <Text style={[lightTheme.sectionTitle, styles.textTitle, { paddingVertical: 10 }]}>Recommended Hotels</Text>
                         <FlatList
                             horizontal
                             data={generatedPrompt.hotels}
@@ -123,7 +114,7 @@ export default function GeneratedPrompt() {
                             showsHorizontalScrollIndicator={false}
                         />
                     </View>
-                </View>
+                </>
             )}
             <Button title="Submit" onPress={submitPrompt} />
         </GestureHandlerRootView>
@@ -199,7 +190,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
     },
     horizontalContainer: {
-        height: 150,
+        minHeight: 150,
         width: 200,
         borderRadius: 8,
         padding: 15,
@@ -221,12 +212,16 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     textTitle: {
-        fontFamily: 'Roboto-Bold',
+        fontFamily: 'OpenSans_Condensed-Bold',
         fontSize: 20
     },
     textDesc: {
-        fontFamily: 'Roboto-Light',
+        fontFamily: 'OpenSans_Condensed-Medium',
         fontSize: 15
+    },
+    hotelName:{
+        fontFamily: 'OpenSans_Condensed-Bold',
+        fontSize: 16
     },
     boxShadow: {
         shadowColor: "#000",
