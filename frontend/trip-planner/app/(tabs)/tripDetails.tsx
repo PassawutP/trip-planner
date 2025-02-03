@@ -42,7 +42,7 @@ export default function TripDetails({}) {
             </View>
             <View style={[styles.horizontalListContainer, lightTheme.background]}>
                 { records.prompt.hotel &&
-                    <div>
+                    <View>
                         <Text style={[lightTheme.sectionTitle]}>Hotel</Text>
                         <View
                             style={[
@@ -57,7 +57,7 @@ export default function TripDetails({}) {
                             <Text style={lightTheme.hotelDescription}>Rating: {records.prompt.hotel?.rating}</Text>
                             {/* <Image source={{ uri: records.prompt.hotel.imageUrl}} style={styles.image}/> */}
                         </View>
-                    </div>
+                    </View>
                 }
             </View>
         </SafeAreaView>
