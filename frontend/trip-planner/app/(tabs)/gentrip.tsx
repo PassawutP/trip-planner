@@ -24,8 +24,16 @@ export default function Gentrip() {
     // const [firstForm, setFirstForm] = useState<boolean>(true);
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date(new Date().setDate(new Date().getDate() + 7)));
+    const [startTime, setStartTime] = useState(() => {
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        return now;
+    });
+    
+    
     const [showStartPicker, setShowStartPicker] = useState(false);
     const [showEndPicker, setShowEndPicker] = useState(false);
+    const [showStartTimePicker, setStartTimePicker] = useState(false);
     const [region, setRegion] = useState<string>();
 
     const [peopleNo, setPeopleNo] = useState<string | null>(null);
@@ -75,6 +83,14 @@ export default function Gentrip() {
         }
         setShowEndPicker(false);
     };
+
+    const onStartTime = (event: DateTimePickerEvent, selectedDate?: Date) => {
+        if (selectedDate) {
+            setStartTime(selectedDate);
+        }
+        setStartTimePicker(false);
+    };
+    
     
     // const next = () => {
     //     if (region && startDate && endDate){
@@ -215,6 +231,22 @@ export default function Gentrip() {
                                 onChange={onEndDateChange}
                                 minimumDate={startDate}
                                 maximumDate={new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000)}
+                            />
+                        </View>
+                    )}
+                </View>
+                <View>
+                    <Text style={styles.text}>Starting Time: </Text>
+                    <TouchableOpacity onPress={() => setStartTimePicker(true)}>
+                        <Text>{startTime.toLocaleTimeString()}</Text>
+                    </TouchableOpacity>
+                    {showStartTimePicker && (
+                        <View style={{ borderColor: "black", borderWidth: 2}}>
+                            <DateTimePicker
+                                value={startTime}
+                                mode="time"
+                                display="default"
+                                onChange={onStartTime}
                             />
                         </View>
                     )}
