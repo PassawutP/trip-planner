@@ -82,7 +82,7 @@ export default function Gentrip() {
         }
     };
 
-    const submit = async () => {
+    const submit = async () => { 
         if (region && startDate && endDate && peopleNo && budget && preferences){
             const messageDto: MessageDto = {
                 region: region,

@@ -2,7 +2,7 @@ import { LocationDto, Records } from "@/interface/interface";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { FlatList, ListRenderItem, StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
 import { RootStackParamList } from "../_layout";
-import { useFocusEffect, useNavigation } from "expo-router";
+import { useNavigation } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
@@ -15,7 +15,7 @@ export default function TripDetails({}) {
     const navigation = useNavigation<TripDetailsScreenProp>();
     const route = useRoute();
     const { records } = route.params as { records: Records };
-
+    
     const renderContent: ListRenderItem<LocationDto> = ({ item }) => (
         <View style={[styles.card, lightTheme.card]}>
             <Text style={lightTheme.locationTitle}>{item.location}</Text>
@@ -42,7 +42,7 @@ export default function TripDetails({}) {
             </View>
             <View style={[styles.horizontalListContainer, lightTheme.background]}>
                 { records.prompt.hotel &&
-                    <>
+                    <div>
                         <Text style={[lightTheme.sectionTitle]}>Hotel</Text>
                         <View
                             style={[
@@ -57,7 +57,7 @@ export default function TripDetails({}) {
                             <Text style={lightTheme.hotelDescription}>Rating: {records.prompt.hotel?.rating}</Text>
                             {/* <Image source={{ uri: records.prompt.hotel.imageUrl}} style={styles.image}/> */}
                         </View>
-                    </>
+                    </div>
                 }
             </View>
         </SafeAreaView>

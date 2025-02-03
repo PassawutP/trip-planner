@@ -170,8 +170,7 @@ const styles = StyleSheet.create({
   newTripContainer: {
     flex: 1,
     flexDirection: "row",
-    minHeight: 250,
-    marginHorizontal: 20
+    minHeight: 300
   },
   image: {
     width: 150,

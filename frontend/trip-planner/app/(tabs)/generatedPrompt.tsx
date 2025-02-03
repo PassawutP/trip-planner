@@ -103,7 +103,7 @@ export default function GeneratedPrompt() {
                 <Text style={lightTheme.navTitle}>Generated Content</Text>
             </TouchableOpacity>
             {generatedPrompt.locations && generatedPrompt.hotels && (
-                <>
+                <div>
                     <View style={styles.listContainer}>
                         <FlatList
                             data={generatedPrompt.locations}
@@ -123,7 +123,7 @@ export default function GeneratedPrompt() {
                             showsHorizontalScrollIndicator={false}
                         />
                     </View>
-                </>
+                </div>
             )}
             <Button title="Submit" onPress={submitPrompt} />
         </GestureHandlerRootView>
