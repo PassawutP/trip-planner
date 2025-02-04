@@ -39,10 +39,6 @@ export default function GeneratedPrompt() {
         </TouchableOpacity>
     );
 
-    useEffect(() => {
-        console.log(generatedPrompt)
-    }, [])
-
     const renderContent: ListRenderItem<LocationDto> = ({ item }) => (
         <View style={[styles.card, lightTheme.card]}>
             <Text style={[lightTheme.locationTitle, styles.textTitle]}>{item.location}</Text>
