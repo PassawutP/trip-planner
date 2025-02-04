@@ -62,12 +62,6 @@ export default function Gentrip() {
         {label: 'Photography', value: 'photography'},
       ]);
 
-    const [fontsLoaded] = useFonts({
-        'Roboto-Light': require('../../assets/fonts/Roboto-Light.ttf'),
-        'Roboto-Medium': require('../../assets/fonts/Roboto-Medium.ttf'),
-        'Roboto-Bold': require('../../assets/fonts/Roboto-Bold.ttf'),
-    });
-
     const onStartDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
         if (selectedDate) {
             const currentDate = selectedDate || startDate;

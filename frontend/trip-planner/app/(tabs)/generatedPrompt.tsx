@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
-import { HotelDto, LocationDto, Records, TripPlanDto, TripPlanDtoWithDetails } from "@/interface/interface";
+import { HotelDto, LocationDto, Records, TripPlanDtoWithDetails, RecordDto } from "@/interface/interface";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { useFonts } from "expo-font";
-import { Button, ListRenderItem, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Button, ListRenderItem, SectionList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { FlatList, GestureHandlerRootView } from "react-native-gesture-handler";
 import { submitTrip } from "@/api/api";
-import { RecordDto } from "@/interface/interface";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../_layout";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -23,6 +21,36 @@ export default function GeneratedPrompt() {
         setSelectedHotel(hotel === selectedHotel ? null : hotel); // Toggle selection
     };
 
+    // Grouping locations by date
+    const groupByDate = (locations: LocationDto[]) => {
+        const grouped: { title: string, data: LocationDto[] }[] = [];
+        const dateMap: { [key: string]: LocationDto[] } = {};
+
+        locations.forEach(item => {
+            const date = new Date(item.startDateTime).toISOString().substring(0, 10); // Extract date (YYYY-MM-DD)
+            if (!dateMap[date]) dateMap[date] = [];
+            dateMap[date].push(item);
+        });
+
+        let dayCount = 1;
+        for (const [date, items] of Object.entries(dateMap)) {
+            grouped.push({ title: `Day ${dayCount} (${date})`, data: items });
+            dayCount++;
+        }
+
+        return grouped;
+    };
+
+    const renderLocation: ListRenderItem<LocationDto> = ({ item }) => (
+        <View style={[styles.card, lightTheme.card]}>
+            <Text style={[lightTheme.locationTitle, styles.textTitle]}>{item.location}</Text>
+            <Text style={[lightTheme.textDescription, styles.textDesc]}>{item.detail}</Text>
+            <Text style={[lightTheme.textInfo, styles.textDesc]}>Date: {new Date(item.startDateTime).toISOString().substring(0, 10)}</Text>
+            <Text style={[lightTheme.textInfo, styles.textDesc]}>Time: {new Date(item.startDateTime).toISOString().substring(11, 16)} - {new Date(item.endDateTime).toISOString().substring(11, 16)}</Text>
+            <Text style={[lightTheme.textInfo, styles.textDesc]}>Entry cost: {item.entryCost}</Text>
+        </View>
+    );
+
     const renderHotel: ListRenderItem<HotelDto> = ({ item }) => (
         <TouchableOpacity
             style={[
@@ -32,74 +60,68 @@ export default function GeneratedPrompt() {
             onPress={() => handleSelectHotel(item)}
         >
             <Text style={[item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription, styles.hotelName]}>{item.hotelName}</Text>
-            {/* <Text style={item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription}>Details: {item.description}</Text> */}
             <Text style={item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription}>Address: {item.hotelAddress}</Text>
             <Text style={item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription}>Price: {item.price}</Text>
             <Text style={item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription}>Rating: {item.rating}</Text>
         </TouchableOpacity>
     );
 
-    const renderContent: ListRenderItem<LocationDto> = ({ item }) => (
-        <View style={[styles.card, lightTheme.card]}>
-            <Text style={[lightTheme.locationTitle, styles.textTitle]}>{item.location}</Text>
-            <Text style={[lightTheme.textDescription, styles.textDesc]}>{item.detail}</Text>
-            <Text style={[lightTheme.textInfo, styles.textDesc]}>Date: {new Date(item.startDateTime).toISOString().substring(0, 10)}</Text>
-            <Text style={[lightTheme.textInfo, styles.textDesc]}>Time: {new Date(item.startDateTime).toISOString().substring(11, 16)} - {new Date(item.endDateTime).toISOString().substring(11, 16)}</Text>
-            <Text style={[lightTheme.textInfo, styles.textDesc]}>Entry cost: {item.entryCost}</Text>
-        </View>
-    )
-
     const submitPrompt = async () => {
         const recordDto: RecordDto = {
             title: `${generatedPrompt.details.region} Trip`,
-
             region: generatedPrompt.details.region,
-        
             budget: Number(generatedPrompt.details.budget),
-        
             startDate: new Date(generatedPrompt.details.tripStart),
-        
             endDate: new Date(generatedPrompt.details.tripEnd),
-        
             preference: generatedPrompt.details.preferences,
-
             prompt: {
                 locations: generatedPrompt.locations,
                 hotel: selectedHotel
             }
         };
+
         const userId = await AsyncStorage.getItem('userId');
-        await submitTrip( recordDto );
-        const trip = await AsyncStorage.getItem("storedContent")
+        await submitTrip(recordDto);
+
+        const trip = await AsyncStorage.getItem("storedContent");
         if (trip && userId) {
-            const newTrip: Records[] = JSON.parse(trip)
-            newTrip.push( {...recordDto, _id: userId} )
-            await AsyncStorage.setItem("storedContent", JSON.stringify(newTrip))
+            const newTrip: Records[] = JSON.parse(trip);
+            newTrip.push({ ...recordDto, _id: userId });
+            await AsyncStorage.setItem("storedContent", JSON.stringify(newTrip));
+        } else if (!trip && userId) {
+            const newTrip: Records[] = [{ ...recordDto, _id: userId }];
+            await AsyncStorage.setItem("storedContent", JSON.stringify(newTrip));
         }
-        else if (trip && userId){
-            const newTrip: Records[] = []
-            newTrip.push( {...recordDto, _id: userId} )
-            await AsyncStorage.setItem("storedContent", JSON.stringify(newTrip))
-        }
-        navigation.navigate("Home")
-    }
+
+        navigation.navigate("Home");
+    };
+
+    // Grouped location data
+    const groupedData = groupByDate(generatedPrompt.locations);
 
     return (
-        <GestureHandlerRootView style={[{ flex: 1 }]}>
+        <GestureHandlerRootView style={{ flex: 1 }}>
             <TouchableOpacity style={[styles.navigationBar, lightTheme.navigationBar]}>
                 <Text style={[lightTheme.navTitle, styles.textTitle]}>Generated Content</Text>
             </TouchableOpacity>
+
             {generatedPrompt.locations && generatedPrompt.hotels && (
                 <>
                     <View style={styles.listContainer}>
-                        <FlatList
-                            data={generatedPrompt.locations}
-                            renderItem={renderContent}
-                            keyExtractor={(item, index) => index.toString()}
+                        <SectionList
+                            sections={groupedData}
+                            renderItem={renderLocation}
+                            renderSectionHeader={({ section }) => (
+                                <View style={styles.sectionHeader}>
+                                    <Text style={styles.sectionTitle}>{section.title}</Text>
+                                </View>
+                            )}
+                            keyExtractor={(item, index) => item.location + index}
                             contentContainerStyle={styles.flatlist}
                         />
                     </View>
-                    <View style={[styles.horizontalListContainer, lightTheme.background]}>
+
+                    <View style={[{paddingHorizontal: 5},lightTheme.background]}>
                         <Text style={[lightTheme.sectionTitle, styles.textTitle, { paddingVertical: 10 }]}>Recommended Hotels</Text>
                         <FlatList
                             horizontal
@@ -112,6 +134,7 @@ export default function GeneratedPrompt() {
                     </View>
                 </>
             )}
+
             <Button title="Submit" onPress={submitPrompt} />
         </GestureHandlerRootView>
     );
@@ -168,11 +191,14 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingTop: 10,
     },
-    horizontalListContainer: {
-        paddingHorizontal: 20,
+    sectionHeader: {
+        padding: 15,
+        backgroundColor: "#FF9800",
     },
-    flatlist: {
-        gap: 5,
+    sectionTitle: {
+        fontFamily: 'OpenSans_Condensed-Bold',
+        fontSize: 20,
+        color: "white",
     },
     card: {
         padding: 15,
@@ -201,29 +227,19 @@ const styles = StyleSheet.create({
         height: 50,
         justifyContent: "center",
         paddingLeft: 15,
-        shadowColor: "#000",
-        shadowOpacity: 0.3,
-        shadowOffset: { width: 0, height: 4 },
-        shadowRadius: 5,
-        elevation: 5,
     },
     textTitle: {
-        fontFamily: 'OpenSans_Condensed-Bold',
-        fontSize: 20
+        fontSize: 20,
     },
     textDesc: {
         fontFamily: 'OpenSans_Condensed-Medium',
         fontSize: 15
     },
-    hotelName:{
+    flatlist: {
+        gap: 5,
+    },
+    hotelName: {
         fontFamily: 'OpenSans_Condensed-Bold',
         fontSize: 16
     },
-    boxShadow: {
-        shadowColor: "#000",
-        shadowOpacity: 0.3,
-        shadowOffset: { width: 0, height: 4 },
-        shadowRadius: 5,
-        elevation: 5,
-    }
 });

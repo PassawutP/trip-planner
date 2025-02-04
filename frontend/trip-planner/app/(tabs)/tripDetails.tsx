@@ -1,22 +1,64 @@
 import { LocationDto, Records } from "@/interface/interface";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { FlatList, ListRenderItem, StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
+import { SectionList, ListRenderItem, StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
 import { RootStackParamList } from "../_layout";
 import { useNavigation } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
-
+import React, { useState } from "react";
 
 type TripDetailsScreenProp = StackNavigationProp<RootStackParamList, 'TripDetails'>;
 
 export default function TripDetails({}) {
-
     const navigation = useNavigation<TripDetailsScreenProp>();
     const route = useRoute();
     const { records } = route.params as { records: Records };
-    
-    const renderContent: ListRenderItem<LocationDto> = ({ item }) => (
+
+    const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
+
+    // Grouping the data by date
+    const groupByDate = (locations: LocationDto[]) => {
+        const grouped: { title: string, data: LocationDto[] }[] = [];
+        const dateMap: { [key: string]: LocationDto[] } = {};
+
+        locations.forEach(item => {
+            const date = new Date(item.startDateTime).toISOString().substring(0, 10); // Extract date (YYYY-MM-DD)
+            if (!dateMap[date]) dateMap[date] = [];
+            dateMap[date].push(item);
+        });
+
+        let dayCount = 1;
+        for (const [date, items] of Object.entries(dateMap)) {
+            grouped.push({ title: `Day ${dayCount} (${date})`, data: items });
+            dayCount++;
+        }
+
+        return grouped;
+    };
+
+    // Toggle section expansion
+    const toggleSection = (title: string) => {
+        setExpandedSections(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(title)) {
+                newSet.delete(title);
+            } else {
+                newSet.add(title);
+            }
+            return newSet;
+        });
+    };
+
+    // Render the section header
+    const renderSectionHeader = ({ section }: { section: { title: string, data: LocationDto[] } }) => (
+        <TouchableOpacity style={styles.sectionHeader} onPress={() => toggleSection(section.title)}>
+            <Text style={styles.sectionTitle}>{section.title}</Text>
+        </TouchableOpacity>
+    );
+
+    // Render each location
+    const renderItem: ListRenderItem<LocationDto> = ({ item }) => (
         <View style={[styles.card, lightTheme.card]}>
             <Text style={[lightTheme.locationTitle, styles.textTitle]}>{item.location}</Text>
             <Text style={[lightTheme.textDescription, styles.textDesc]}>{item.detail}</Text>
@@ -25,7 +67,10 @@ export default function TripDetails({}) {
             <Text style={[lightTheme.textInfo, styles.textDesc]}>Entry cost: {item.entryCost}</Text>
         </View>
     );
-    
+
+    // Group locations by date
+    const groupedData = groupByDate(records.prompt.locations);
+
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <View>
@@ -34,10 +79,13 @@ export default function TripDetails({}) {
                 </TouchableOpacity>
             </View>
             <View style={styles.listContainer}>
-                <FlatList
-                    data={records.prompt.locations}
-                    renderItem={renderContent}
+                <SectionList
+                    sections={groupedData}
+                    renderItem={renderItem}
+                    renderSectionHeader={renderSectionHeader}
+                    keyExtractor={(item, index) => item.location + index}
                     contentContainerStyle={styles.flatlist}
+                    extraData={expandedSections}
                 />
             </View>
             <View style={[styles.horizontalListContainer, lightTheme.background]}>
@@ -45,16 +93,12 @@ export default function TripDetails({}) {
                     <View>
                         <Text style={[lightTheme.sectionTitle, styles.textTitle]}>Hotel</Text>
                         <View
-                            style={[
-                                styles.horizontalContainer,
-                                lightTheme.hotelContainer,
-                            ]}
+                            style={[lightTheme.hotelContainer]}
                         >
                             <Text style={[lightTheme.hotelDescription, styles.textDesc]}>{records.prompt.hotel?.hotelName}</Text>
                             <Text style={[lightTheme.hotelDescription, styles.textDesc]}>Hotel Address: {records.prompt.hotel?.hotelAddress}</Text>
                             <Text style={[lightTheme.hotelDescription, styles.textDesc]}>Price: {records.prompt.hotel?.price}</Text>
                             <Text style={[lightTheme.hotelDescription, styles.textDesc]}>Rating: {records.prompt.hotel?.rating}</Text>
-                            {/* <Image source={{ uri: records.prompt.hotel.imageUrl}} style={styles.image}/> */}
                         </View>
                     </View>
                 }
@@ -64,16 +108,13 @@ export default function TripDetails({}) {
 }
 
 const styles = StyleSheet.create({
-    hotelName:{
+    hotelName: {
         fontFamily: 'OpenSans_Condensed-Bold',
         fontSize: 16
     },
     navigationBar: {
         shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
         elevation: 5,
@@ -103,17 +144,14 @@ const styles = StyleSheet.create({
         marginVertical: 10,
         borderWidth: 1,
     },
-    horizontalContainer: {
-        height: 150,
-        width: 300,
-        borderRadius: 8,
+    sectionHeader: {
         padding: 15,
-        marginHorizontal: 10,
-        justifyContent: "center",
-        shadowColor: "#000",
-        shadowOpacity: 0.15,
-        shadowOffset: { width: 0, height: 4 },
-        shadowRadius: 5,
+        backgroundColor: "#FF9800",
+    },
+    sectionTitle: {
+        fontFamily: 'OpenSans_Condensed-Bold',
+        fontSize: 20,
+        color: "white",
     },
     textTitle: {
         fontFamily: 'OpenSans_Condensed-Bold',
@@ -160,10 +198,20 @@ const lightTheme = StyleSheet.create({
         color: "#888",
     },
     hotelContainer: {
-        backgroundColor: "#FFE0B2",
+        backgroundColor: "white",
+        borderColor: "black",
+        borderWidth: 2,
+        borderRadius: 5,
+        padding: 5,
+        marginVertical: 5
     },
     hotelDescription: {
         color: "#FF9800",
+    },
+    section:{
+        borderColor: "black",
+        borderWidth: 2,
+        borderRadius: 1
     },
     sectionTitle: {
         color: "#FF9800",

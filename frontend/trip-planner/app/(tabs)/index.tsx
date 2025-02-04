@@ -1,7 +1,6 @@
 import { Image, StyleSheet, Platform, Button, TouchableOpacity, ListRenderItem, Text, View, ActivityIndicator } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
-import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -21,13 +20,6 @@ import { Colors } from '@/constants/Colors';
 type HomeScreenProp = StackNavigationProp<RootStackParamList, 'Home'>;
 
 export default function HomeScreen() {
-
-  const [fontsLoaded] = useFonts({
-    'Roboto-Light': require('../../assets/fonts/Roboto-Light.ttf'),
-    'Roboto-Medium': require('../../assets/fonts/Roboto-Medium.ttf'),
-    'Roboto-Bold': require('../../assets/fonts/Roboto-Bold.ttf'),
-  });
-
   const navigation = useNavigation<HomeScreenProp>();
   const [content, setContent] = useState<Records[]>();
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -44,20 +36,32 @@ export default function HomeScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      let isActive = true;
+  
       const checkContent = async () => {
-        const storedContent = await AsyncStorage.getItem("storedContent");
-        if (!storedContent) {
-          const getContent: Records[] = await getAllRecords();
-          await AsyncStorage.setItem("storedContent", JSON.stringify(getContent));
-          setContent(getContent);
-        } else {
-          setContent(JSON.parse(storedContent));
+        try {
+          const storedContent = await AsyncStorage.getItem("storedContent");
+  
+          if (!storedContent && isActive) {
+            const getContent: Records[] = await getAllRecords();
+            await AsyncStorage.setItem("storedContent", JSON.stringify(getContent));
+            setContent(getContent);
+          } else if (isActive && storedContent) {
+            setContent(JSON.parse(storedContent));
+          }
+        } catch (error) {
+          console.error("Error fetching records:", error);
         }
       };
+  
       checkContent();
+  
+      return () => {
+        isActive = false; // Cleanup function to prevent state updates on an unmounted component
+      };
     }, [])
   );
-
+  
   const renderTrip: ListRenderItem<Records> = ({ item }) => {
     return (
     <TouchableOpacity key={item._id} style={styles.myTripContainer} onPress={() => {getTripDetails(item)}}>
@@ -68,9 +72,6 @@ export default function HomeScreen() {
       <Text style={styles.description}> Preferences: {item.preference === null ? "None" : item.preference.join(", ")} </Text>
     </TouchableOpacity>
     )
-  }
-  if (!fontsLoaded){
-    return (<ActivityIndicator size="large" color="#0000ff" />);
   }
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
