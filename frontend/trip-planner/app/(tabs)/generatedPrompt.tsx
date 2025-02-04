@@ -8,6 +8,8 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../_layout";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React from "react";
+import { AntDesign } from "@expo/vector-icons";
+import { Colors } from "@/constants/Colors";
 
 type GeneratedPromptScreenProp = StackNavigationProp<RootStackParamList, 'GeneratedPrompt'>;
 
@@ -17,7 +19,7 @@ export default function GeneratedPrompt() {
     const { generatedPrompt } = route.params as { generatedPrompt: TripPlanDtoWithDetails };
     const [selectedHotel, setSelectedHotel] = useState<HotelDto | null>(null);
 
-    const handleSelectHotel = (hotel: HotelDto) => {
+    const handleSelectHotel = (hotel: HotelDto | null) => {
         setSelectedHotel(hotel === selectedHotel ? null : hotel); // Toggle selection
     };
 
@@ -51,20 +53,33 @@ export default function GeneratedPrompt() {
         </View>
     );
 
-    const renderHotel: ListRenderItem<HotelDto> = ({ item }) => (
-        <TouchableOpacity
-            style={[
-                styles.horizontalContainer,
-                item === selectedHotel ? darkTheme.selectedHotelContainer : lightTheme.hotelContainer,
-            ]}
-            onPress={() => handleSelectHotel(item)}
-        >
-            <Text style={[item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription, styles.hotelName]}>{item.hotelName}</Text>
-            <Text style={item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription}>Address: {item.hotelAddress}</Text>
-            <Text style={item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription}>Price: {item.price}</Text>
-            <Text style={item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription}>Rating: {item.rating}</Text>
-        </TouchableOpacity>
-    );
+    const renderHotel: ListRenderItem<HotelDto> = ({ item }) =>
+        {   if (item.hotelName != "Not Selecting Any Hotel Currently"){
+            return (<TouchableOpacity
+                style={[
+                    styles.horizontalContainer,
+                    item === selectedHotel ? darkTheme.selectedHotelContainer : lightTheme.hotelContainer,
+                ]}
+                onPress={() => handleSelectHotel(item)}
+            >
+                <Text style={[item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription, styles.hotelName]}>{item.hotelName}</Text>
+                <Text style={item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription}>Address: {item.hotelAddress}</Text>
+                <Text style={item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription}>Price: {item.price}</Text>
+                <Text style={item === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription}>Rating: {item.rating}</Text>
+            </TouchableOpacity>)
+            }
+            else {
+                return (<TouchableOpacity
+                    style={[
+                        styles.horizontalContainer,
+                        null === selectedHotel ? darkTheme.selectedHotelContainer : lightTheme.hotelContainer,
+                    ]}
+                    onPress={() => handleSelectHotel(null)}
+                >
+                    <Text style={[null === selectedHotel ? darkTheme.hotelDescription : lightTheme.hotelDescription, styles.hotelName]}>{item.hotelName}</Text>
+                </TouchableOpacity>)
+            }
+        };
 
     const submitPrompt = async () => {
         const recordDto: RecordDto = {
@@ -101,6 +116,9 @@ export default function GeneratedPrompt() {
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
+            {/* <TouchableOpacity style={styles.navigationBar}>
+                <AntDesign name="back" size={24} color="black" onPress={() => navigation.navigate("Home")} />
+            </TouchableOpacity> */}
             <TouchableOpacity style={[styles.navigationBar, lightTheme.navigationBar]}>
                 <Text style={[lightTheme.navTitle, styles.textTitle]}>Generated Content</Text>
             </TouchableOpacity>
@@ -121,11 +139,11 @@ export default function GeneratedPrompt() {
                         />
                     </View>
 
-                    <View style={[{paddingHorizontal: 5},lightTheme.background]}>
+                    <View style={[lightTheme.background, {paddingBottom: 10, paddingHorizontal: 10}]}>
                         <Text style={[lightTheme.sectionTitle, styles.textTitle, { paddingVertical: 10 }]}>Recommended Hotels</Text>
                         <FlatList
                             horizontal
-                            data={generatedPrompt.hotels}
+                            data={[...generatedPrompt.hotels, { hotelName: "Not Selecting Any Hotel Currently" } as HotelDto]}
                             renderItem={renderHotel}
                             keyExtractor={(item, index) => index.toString()}
                             style={lightTheme.background}
@@ -134,15 +152,22 @@ export default function GeneratedPrompt() {
                     </View>
                 </>
             )}
+            <View style={{ flexDirection: "row", justifyContent: "space-between", width: "100%" }}>
+                <View style={{ flex: 1 }} >
+                    <Button title="Back" color="#424242" onPress={() => navigation.navigate("Home")} />
+                </View>
+                <View style={{ flex: 1 }}>
+                    <Button title="Submit" color="#424242" onPress={submitPrompt} />
+                </View>
+            </View>
 
-            <Button title="Submit" onPress={submitPrompt} />
         </GestureHandlerRootView>
     );
 }
 
 const lightTheme = StyleSheet.create({
     background: {
-        backgroundColor: "#FFF8E1",
+        backgroundColor: "#999799",
     },
     navigationBar: {
         backgroundColor: "#FF9800",
@@ -164,13 +189,14 @@ const lightTheme = StyleSheet.create({
         color: "#888",
     },
     hotelContainer: {
-        backgroundColor: "#FFE0B2",
+        backgroundColor: "#FFFFFF",
     },
     hotelDescription: {
-        color: "#FF9800",
+        color: Colors.themedColor.black,
+        fontFamily: 'OpenSans_SemiCondensed-Medium',
     },
     sectionTitle: {
-        color: "#FF9800",
+        color: "#FFFFFF",
     },
 });
 
@@ -181,6 +207,7 @@ const darkTheme = StyleSheet.create({
         borderWidth: 2,
     },
     hotelDescription: {
+        fontFamily: 'OpenSans_Condensed-Medium',
         color: "#FFCC80",
     },
 });
@@ -230,6 +257,7 @@ const styles = StyleSheet.create({
     },
     textTitle: {
         fontSize: 20,
+        fontFamily: 'OpenSans_Condensed-Bold',
     },
     textDesc: {
         fontFamily: 'OpenSans_Condensed-Medium',

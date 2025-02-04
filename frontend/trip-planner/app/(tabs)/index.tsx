@@ -36,32 +36,20 @@ export default function HomeScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      let isActive = true;
-  
       const checkContent = async () => {
-        try {
-          const storedContent = await AsyncStorage.getItem("storedContent");
-  
-          if (!storedContent && isActive) {
-            const getContent: Records[] = await getAllRecords();
-            await AsyncStorage.setItem("storedContent", JSON.stringify(getContent));
-            setContent(getContent);
-          } else if (isActive && storedContent) {
-            setContent(JSON.parse(storedContent));
-          }
-        } catch (error) {
-          console.error("Error fetching records:", error);
+        const storedContent = await AsyncStorage.getItem("storedContent");
+        if (!storedContent) {
+          const getContent: Records[] = await getAllRecords();
+          await AsyncStorage.setItem("storedContent", JSON.stringify(getContent));
+          setContent(getContent);
+        } else {
+          setContent(JSON.parse(storedContent));
         }
       };
-  
       checkContent();
-  
-      return () => {
-        isActive = false; // Cleanup function to prevent state updates on an unmounted component
-      };
     }, [])
   );
-  
+
   const renderTrip: ListRenderItem<Records> = ({ item }) => {
     return (
     <TouchableOpacity key={item._id} style={styles.myTripContainer} onPress={() => {getTripDetails(item)}}>

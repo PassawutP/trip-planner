@@ -7,6 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
 import React, { useState } from "react";
+import { Colors } from "@/constants/Colors";
 
 type TripDetailsScreenProp = StackNavigationProp<RootStackParamList, 'TripDetails'>;
 
@@ -88,7 +89,7 @@ export default function TripDetails({}) {
                     extraData={expandedSections}
                 />
             </View>
-            <View style={[styles.horizontalListContainer, lightTheme.background]}>
+            <View style={[styles.horizontalListContainer, {backgroundColor: "#8f8f8f"}]}>
                 { records.prompt.hotel &&
                     <View>
                         <Text style={[lightTheme.sectionTitle, styles.textTitle]}>Hotel</Text>
@@ -198,22 +199,22 @@ const lightTheme = StyleSheet.create({
         color: "#888",
     },
     hotelContainer: {
-        backgroundColor: "white",
-        borderColor: "black",
+        backgroundColor: "#FFF3E0",
+        borderColor: "white",
         borderWidth: 2,
-        borderRadius: 5,
-        padding: 5,
-        marginVertical: 5
+        borderRadius: 8,
+        padding: 8,
+        marginBottom: 10,
+        shadowColor: "#000",
+        shadowOpacity: 0.08,
+        shadowOffset: { width: 0, height: 2 },
+        shadowRadius: 4,
+        elevation: 2,
     },
     hotelDescription: {
-        color: "#FF9800",
-    },
-    section:{
-        borderColor: "black",
-        borderWidth: 2,
-        borderRadius: 1
+        color: "#333", // Dark gray for better contrast
     },
     sectionTitle: {
-        color: "#FF9800",
+        color: "white",
     },
 });
