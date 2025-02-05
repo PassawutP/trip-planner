@@ -1,7 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../_layout";
-import { StyleSheet, Text, TextInput, TextInputChangeEventData, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, TextInput, TextInputChangeEventData, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useEffect, useState } from "react";
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -62,6 +62,8 @@ export default function Gentrip() {
         {label: 'Photography', value: 'photography'},
       ]);
 
+    const [loading, setLoading] = useState(true);
+    
     const onStartDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
         if (selectedDate) {
             const currentDate = selectedDate || startDate;
@@ -94,6 +96,7 @@ export default function Gentrip() {
 
     const submit = async () => { 
         if (region && startDate && endDate && peopleNo && budget && preferences){
+            setLoading(false);
             const messageDto: MessageDto = {
                 region: region,
                 budget: budget,
@@ -102,14 +105,19 @@ export default function Gentrip() {
                 peopleNo: peopleNo,
                 preferences: preferences
             }
-            const generatedPrompt: TripPlanDto = await genTrip(messageDto);
-            const generatedPromptWithDetails: TripPlanDtoWithDetails = { ...generatedPrompt, details: messageDto};
-            // const generatedPromptWithDetails: TripPlanDtoWithDetails = {...generatedPrompt, details: messageDto};
-            if (generatedPrompt){
-                navigation.navigate("GeneratedPrompt", { generatedPrompt: generatedPromptWithDetails })
-            }
-            else {
-                console.error("Error!")
+            try{
+                const generatedPrompt: TripPlanDto = await genTrip(messageDto);
+                const generatedPromptWithDetails: TripPlanDtoWithDetails = { ...generatedPrompt, details: messageDto};
+                // const generatedPromptWithDetails: TripPlanDtoWithDetails = {...generatedPrompt, details: messageDto};
+                if (generatedPrompt){
+                    navigation.navigate("GeneratedPrompt", { generatedPrompt: generatedPromptWithDetails })
+                }
+                else {
+                    console.error("Error!")
+                }
+            } catch (error) {
+                console.error('Error in genTrip:', error);
+                throw error;
             }
         }
     }
@@ -135,8 +143,8 @@ export default function Gentrip() {
             setStartDate(adjustedStartDate);
         }
     },[endDate])
-
     return (
+        loading ?
         <SafeAreaView>
             <TouchableOpacity style={styles.navigationBar}>
                 <AntDesign name="back" size={24} color="black" onPress={() => navigation.goBack()} />
@@ -152,11 +160,6 @@ export default function Gentrip() {
                         multiline={true}
                     />
                 </View>
-                {/* <View style={styles.horizontalCenter}>
-                    <TouchableOpacity style={styles.button} onPress={next}>
-                        <Text style={styles.buttonText}>Next</Text>
-                    </TouchableOpacity>
-                </View> */}
                 <View style={{ zIndex: 3 }}>
                     <Text style={styles.text}>Number of people</Text>
                     <DropDownPicker
@@ -251,7 +254,11 @@ export default function Gentrip() {
                     </TouchableOpacity>
                 </View>
             </View>
-        </SafeAreaView>
+        </SafeAreaView>:
+        <View style={styles.container}>
+            <ActivityIndicator size="large" color="#FF9800" />
+            <Text style={styles.text}>Loading...</Text>
+        </View>
     );
 }
 
@@ -314,5 +321,11 @@ const styles = StyleSheet.create({
         alignItems: "center",
         height: 100,
         marginHorizontal: 20
-    }
+    },
+    container: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#FFF8E1", // Light orange background
+    },
 });

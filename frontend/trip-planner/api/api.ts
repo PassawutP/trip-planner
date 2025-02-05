@@ -62,25 +62,19 @@ export const getAllRecords = async () => {
 }
 
 export const genTrip = async (messageDto: MessageDto) => {
-
-  try {
-    const token = await AsyncStorage.getItem('authToken');
-    if (!token) {
-      console.error('No token found');
-      return;
-    }
-
-    const response = await api.post(`prompt/generate`, messageDto, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    console.log("Response from server:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error('Error in genTrip:', error);
-    throw error;
+  const token = await AsyncStorage.getItem('authToken');
+  if (!token) {
+    console.error('No token found');
+    return;
   }
+
+  const response = await api.post(`prompt/generate`, messageDto, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  console.log("Response from server:", response.data);
+  return response.data;
 }
 
 export const submitTrip = async (recordDto: RecordDto) => {
