@@ -19,11 +19,16 @@ interface Option {
     value: string;
 }
 
+interface OptionInt {
+    label: string;
+    value: number;
+}
+
 export default function Gentrip() {
     const navigation = useNavigation<GentripScreenProp>();
     // const [firstForm, setFirstForm] = useState<boolean>(true);
     const [startDate, setStartDate] = useState(new Date());
-    const [endDate, setEndDate] = useState(new Date(new Date().setDate(new Date().getDate() + 7)));
+    const [endDate, setEndDate] = useState<Date | null>(null);
     const [startTime, setStartTime] = useState(() => {
         const now = new Date();
         now.setHours(0, 0, 0, 0);
@@ -39,10 +44,12 @@ export default function Gentrip() {
     const [peopleNo, setPeopleNo] = useState<string | null>(null);
     const [budget, setBudget] = useState<string | null>(null);
     const [preferences, setPreferences] = useState<string[] | null>(null);
+    const [duration, setDuration] = useState<number| null>(null);
 
     const [openPeople, setOpenPeople] = useState(false);
     const [openBudget, setOpenBudget] = useState(false);
     const [openPreference, setOpenPreference] = useState(false);
+    const [openDuration, setOpenDuration] = useState(false);
 
     const [itemPeopleNo, setItemPeopleNo] = useState<Option[]>([
         {label: '1', value: '1'},
@@ -61,6 +68,13 @@ export default function Gentrip() {
         {label: 'Mountain', value: 'mountain'},
         {label: 'Photography', value: 'photography'},
       ]);
+    const [itemDuration, setItemDuration] = useState<OptionInt[]>([
+        {label: '1', value: 1},
+        {label: '2', value: 2},
+        {label: '3', value: 3},
+        {label: '4', value: 4},
+        {label: '5', value: 5},
+    ])
 
     const [loading, setLoading] = useState(true);
     
@@ -68,17 +82,17 @@ export default function Gentrip() {
         if (selectedDate) {
             const currentDate = selectedDate || startDate;
             setStartDate(currentDate);
-            setEndDate(new Date(currentDate.getTime() + 7 * 24 * 60 * 60 * 1000));
+            // setEndDate(new Date(currentDate.getTime() + 7 * 24 * 60 * 60 * 1000));
         }
         setShowStartPicker(false);
     };
 
-    const onEndDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
-        if (selectedDate) {
-            setEndDate(selectedDate);
-        }
-        setShowEndPicker(false);
-    };
+    // const onEndDateChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
+    //     if (selectedDate) {
+    //         setEndDate(selectedDate);
+    //     }
+    //     setShowEndPicker(false);
+    // };
 
     const onStartTime = (event: DateTimePickerEvent, selectedDate?: Date) => {
         if (selectedDate) {
@@ -128,21 +142,30 @@ export default function Gentrip() {
 
 
     // limit the trip days to be 7 days
-    useEffect(() => {
-        const differenceInTime = endDate.getTime() - startDate.getTime();
-        const differenceInDays = differenceInTime / (1000 * 3600 * 24);
+    // useEffect(() => {
+    //     const differenceInTime = endDate.getTime() - startDate.getTime();
+    //     const differenceInDays = differenceInTime / (1000 * 3600 * 24);
 
-        if (differenceInDays > 7) {
-            const adjustedStartDate = new Date(startDate);
-            adjustedStartDate.setDate(endDate.getDate() - 7);
-            setStartDate(adjustedStartDate);
+    //     if (differenceInDays > 7) {
+    //         const adjustedStartDate = new Date(startDate);
+    //         adjustedStartDate.setDate(endDate.getDate() - 7);
+    //         setStartDate(adjustedStartDate);
+    //     }
+    //     else {
+    //         const adjustedStartDate = new Date(startDate);
+    //         adjustedStartDate.setDate(endDate.getDate() - differenceInDays);
+    //         setStartDate(adjustedStartDate);
+    //     }
+    // },[endDate])
+
+    useEffect(() => {
+        if (startDate && duration){
+            const adjustedEndDate = new Date(startDate);
+            adjustedEndDate.setDate(startDate.getDate() + duration);
+            setEndDate(adjustedEndDate);
         }
-        else {
-            const adjustedStartDate = new Date(startDate);
-            adjustedStartDate.setDate(endDate.getDate() - differenceInDays);
-            setStartDate(adjustedStartDate);
-        }
-    },[endDate])
+    }, [duration])
+
     return (
         loading ?
         <SafeAreaView>
@@ -215,24 +238,6 @@ export default function Gentrip() {
                     )}
                 </View>
                 <View>
-                    <Text style={styles.text}>To Date:</Text>
-                    <TouchableOpacity onPress={() => setShowEndPicker(true)}>
-                        <Text>{endDate.toLocaleDateString()}</Text>
-                    </TouchableOpacity>
-                    {showEndPicker && (
-                        <View style={{ borderColor: "black", borderWidth: 2}}>
-                            <DateTimePicker
-                                value={endDate}
-                                mode="date"
-                                display="default"
-                                onChange={onEndDateChange}
-                                minimumDate={startDate}
-                                maximumDate={new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000)}
-                            />
-                        </View>
-                    )}
-                </View>
-                <View>
                     <Text style={styles.text}>Starting Time: </Text>
                     <TouchableOpacity onPress={() => setStartTimePicker(true)}>
                         <Text>{startTime.toLocaleTimeString()}</Text>
@@ -247,6 +252,35 @@ export default function Gentrip() {
                             />
                         </View>
                     )}
+                </View>
+                <View>
+                    <Text style={styles.text}>Duration:</Text>
+                    <DropDownPicker
+                        open={openDuration}
+                        value={duration}
+                        items={itemDuration}
+                        setOpen={setOpenDuration}
+                        setValue={setDuration}
+                        setItems={setItemDuration}
+                        placeholder={'Choose duration'}
+                        multiple={false}
+                    />
+                    {/* <TouchableOpacity onPress={() => setShowEndPicker(true)}>
+                        <Text>{endDate.toLocaleDateString()}</Text>
+                    </TouchableOpacity>
+                    {showEndPicker && (
+                        <View style={{ borderColor: "black", borderWidth: 2}}>
+                            <DateTimePicker
+                                value={endDate}
+                                mode="date"
+                                display="default"
+                                onChange={onEndDateChange}
+                                minimumDate={startDate}
+                                maximumDate={new Date(startDate.getTime() + 7 * 24 * 60 * 60 * 1000)}
+                            />
+                        </View>
+                    )} */}
+                    {/* <Text> {endDate.toLocaleDateString()} </Text> */}
                 </View>
                 <View style={styles.horizontalCenter}>
                     <TouchableOpacity style={styles.button} onPress={submit}>

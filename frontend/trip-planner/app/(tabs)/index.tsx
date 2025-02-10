@@ -53,7 +53,17 @@ export default function HomeScreen() {
   const renderTrip: ListRenderItem<Records> = ({ item }) => {
     return (
     <TouchableOpacity key={item._id} style={styles.myTripContainer} onPress={() => {getTripDetails(item)}}>
-      <Text style={[styles.text, {fontSize: 20}]}> {item.title} </Text>
+      <View style={{ flexDirection: "row", justifyContent: "space-between"}}>
+        <Text style={[styles.text, {fontSize: 20}]}> {item.title} </Text>
+        <View style={{ flexDirection: "row", gap: 5}}>
+          <TouchableOpacity>
+            <Ionicons name="location" size={25} color="black"/>
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Ionicons name="pencil" size={25} color="black" />
+          </TouchableOpacity>
+        </View>
+      </View>
       <Text style={styles.description}> Starting: {new Date(item.startDate).toISOString().substring(0, 10)}</Text>
       <Text style={styles.description}> Ending: {new Date(item.endDate).toISOString().substring(0, 10)}</Text>
       <Text style={styles.description}> Location: {item.region} </Text>

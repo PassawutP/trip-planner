@@ -89,18 +89,21 @@ export default function TripDetails({}) {
                     extraData={expandedSections}
                 />
             </View>
-            <View style={[styles.horizontalListContainer, {backgroundColor: "#8f8f8f"}]}>
-                { records.prompt.hotel &&
-                    <View>
-                        <Text style={[lightTheme.sectionTitle, styles.textTitle]}>Hotel</Text>
-                        <View
-                            style={[lightTheme.hotelContainer]}
-                        >
-                            <Text style={[lightTheme.hotelDescription, styles.textDesc]}>{records.prompt.hotel?.hotelName}</Text>
-                            <Text style={[lightTheme.hotelDescription, styles.textDesc]}>Hotel Address: {records.prompt.hotel?.hotelAddress}</Text>
-                            <Text style={[lightTheme.hotelDescription, styles.textDesc]}>Price: {records.prompt.hotel?.price}</Text>
-                            <Text style={[lightTheme.hotelDescription, styles.textDesc]}>Rating: {records.prompt.hotel?.rating}</Text>
-                        </View>
+            <View style={[styles.horizontalListContainer, {backgroundColor: "#fff2d6"}]}>
+                { records.prompt.hotel ?
+                    <View
+                        style={[lightTheme.hotelContainer]}
+                    >
+                        <Text style={[lightTheme.sectionTitle, styles.textTitle, { color: Colors.themedColor.black }]}>Hotel</Text>
+                        <Text style={[lightTheme.hotelDescription, styles.textDesc]}>{records.prompt.hotel?.hotelName}</Text>
+                        <Text style={[lightTheme.hotelDescription, styles.textDesc]}>Hotel Address: {records.prompt.hotel?.hotelAddress}</Text>
+                        <Text style={[lightTheme.hotelDescription, styles.textDesc]}>Price: {records.prompt.hotel?.price}</Text>
+                        <Text style={[lightTheme.hotelDescription, styles.textDesc]}>Rating: {records.prompt.hotel?.rating}</Text>
+                    </View>:
+                    <View style={styles.center}>
+                        <TouchableOpacity style={[styles.emptyContainer, styles.center]}> 
+                            <Text style={styles.textDesc}> Add hotel </Text> 
+                        </TouchableOpacity>
                     </View>
                 }
             </View>
@@ -129,6 +132,7 @@ const styles = StyleSheet.create({
         paddingTop: 10,
     },
     horizontalListContainer: {
+        paddingTop: 10,
         paddingHorizontal: 20,
     },
     flatlist: {
@@ -173,6 +177,17 @@ const styles = StyleSheet.create({
         width: 200,
         height: 200,
     },
+    emptyContainer: {
+        minHeight: 50,
+        minWidth: 150,
+        borderRadius: 10,
+        backgroundColor: Colors.themedColor.orange,
+        marginVertical: 10
+    },
+    center: {
+        justifyContent: "center",
+        alignItems: "center",
+    }
 });
 
 const lightTheme = StyleSheet.create({
@@ -199,8 +214,7 @@ const lightTheme = StyleSheet.create({
         color: "#888",
     },
     hotelContainer: {
-        backgroundColor: "#FFF3E0",
-        borderColor: "white",
+        backgroundColor: Colors.themedColor.orange,
         borderWidth: 2,
         borderRadius: 8,
         padding: 8,
