@@ -10,6 +10,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import React from "react";
 import { AntDesign } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
+import { TopNavigateBar } from "@/components/TopNavigateBar";
 
 type GeneratedPromptScreenProp = StackNavigationProp<RootStackParamList, 'GeneratedPrompt'>;
 
@@ -18,6 +19,7 @@ export default function GeneratedPrompt() {
     const route = useRoute();
     const { generatedPrompt } = route.params as { generatedPrompt: TripPlanDtoWithDetails };
     const [selectedHotel, setSelectedHotel] = useState<HotelDto | null>(null);
+    const [ currentTab, setCurrentTab ] = useState(0);
 
     const handleSelectHotel = (hotel: HotelDto | null) => {
         setSelectedHotel(hotel === selectedHotel ? null : hotel); // Toggle selection
@@ -59,6 +61,7 @@ export default function GeneratedPrompt() {
                 style={[
                     styles.horizontalContainer,
                     item === selectedHotel ? darkTheme.selectedHotelContainer : lightTheme.hotelContainer,
+                    { marginVertical: 10}
                 ]}
                 onPress={() => handleSelectHotel(item)}
             >
@@ -122,45 +125,58 @@ export default function GeneratedPrompt() {
             <TouchableOpacity style={[styles.navigationBar, lightTheme.navigationBar]}>
                 <Text style={[lightTheme.navTitle, styles.textTitle]}>Generated Content</Text>
             </TouchableOpacity>
-
-            {generatedPrompt.locations && generatedPrompt.hotels && (
-                <>
-                    <View style={styles.listContainer}>
-                        <SectionList
-                            sections={groupedData}
-                            renderItem={renderLocation}
-                            renderSectionHeader={({ section }) => (
-                                <View style={styles.sectionHeader}>
-                                    <Text style={styles.sectionTitle}>{section.title}</Text>
-                                </View>
-                            )}
-                            keyExtractor={(item, index) => item.location + index}
-                            contentContainerStyle={styles.flatlist}
-                        />
-                    </View>
-
-                    <View style={[lightTheme.background, {paddingBottom: 10, paddingHorizontal: 10}]}>
-                        <Text style={[lightTheme.sectionTitle, styles.textTitle, { paddingVertical: 10 }]}>Recommended Hotels</Text>
+            <TopNavigateBar labels={["Locations", "Hotels", "Checklist"]} current={currentTab} onTabChange={setCurrentTab}/>
+            {generatedPrompt.locations && generatedPrompt.hotels ? (
+                currentTab === 0 ? (
+                    <>
+                        <View style={[styles.listContainer, {height: "100%"}]}>
+                            <SectionList
+                                sections={groupedData}
+                                renderItem={renderLocation}
+                                renderSectionHeader={({ section }) => (
+                                    <View style={styles.sectionHeader}>
+                                        <Text style={styles.sectionTitle}>{section.title}</Text>
+                                    </View>
+                                )}
+                                keyExtractor={(item, index) => item.location + index}
+                                contentContainerStyle={styles.flatlist}
+                            />
+                        </View>
+                    </>
+                ) : currentTab === 1 ? (
+                    <View style={[{ paddingBottom: 10, paddingHorizontal: 10, flex: 1 }]}>
+                        <Text style={[styles.textTitle, { paddingVertical: 10 }]}>Recommended Hotels</Text>
                         <FlatList
-                            horizontal
                             data={[...generatedPrompt.hotels, { hotelName: "Not Selecting Any Hotel Currently" } as HotelDto]}
                             renderItem={renderHotel}
                             keyExtractor={(item, index) => index.toString()}
-                            style={lightTheme.background}
                             showsHorizontalScrollIndicator={false}
                         />
                     </View>
-                </>
-            )}
-            <View style={{ flexDirection: "row", justifyContent: "space-between", width: "100%" }}>
-                <View style={{ flex: 1 }} >
-                    <Button title="Back" color="#424242" onPress={() => navigation.navigate("Home")} />
+                ) : currentTab === 2 ? (
+                    <View style={{ flex: 1, paddingTop: 50}}>
+                        <View style={styles.center}>
+                            <Text style={styles.textTitle}>Stay tuned for this function!</Text>
+                        </View>
+                    </View>
+                ) : null
+            ):
+             <View style={styles.horizontalCenter}>
+                <View style={styles.center}>
+                    <Text style={styles.textTitle}>Error! There is a problem with prompt generation</Text>
                 </View>
-                <View style={{ flex: 1 }}>
-                    <Button title="Submit" color="#424242" onPress={submitPrompt} />
+            </View>}
+            <View>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", width: "100%" }}>
+                    <View style={{ flex: 1 }} >
+                        <Button title="Back" color="#424242" onPress={() => navigation.navigate("Home")} />
+                    </View>
+                    <View style={{ flex: 1 }}>
+                        <Button title="Submit" color="#424242" onPress={submitPrompt} />
+                    </View>
                 </View>
             </View>
-
+            
         </GestureHandlerRootView>
     );
 }
@@ -239,10 +255,11 @@ const styles = StyleSheet.create({
         borderWidth: 1,
     },
     horizontalContainer: {
-        minHeight: 150,
-        width: 200,
-        borderRadius: 8,
+        flex: 1,
+        paddingHorizontal: 20,
+        paddingTop: 10,
         padding: 15,
+        borderRadius: 10,
         marginHorizontal: 10,
         justifyContent: "center",
         shadowColor: "#000",
@@ -270,4 +287,13 @@ const styles = StyleSheet.create({
         fontFamily: 'OpenSans_Condensed-Bold',
         fontSize: 16
     },
+    horizontalCenter:{
+        height: 500,
+        justifyContent: "center",
+        gap: 10
+    },
+    center: {
+        justifyContent: "center",
+        alignItems: "center",
+    }
 });

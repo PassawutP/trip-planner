@@ -10,6 +10,7 @@ import GeneratedPrompt from './(tabs)/generatedPrompt';
 import TripDetails from './(tabs)/tripDetails';
 import Register from './(auth)/register';
 import { FontProvider } from '@/provider/FontProvider';
+import '@/styles/index.css';
 
 export type RootStackParamList = {
   Register: undefined;
@@ -18,7 +19,7 @@ export type RootStackParamList = {
   Explore: undefined;
   Gentrip: undefined;
   GeneratedPrompt: { generatedPrompt: TripPlanDtoWithDetails };
-  TripDetails: { records: Records };
+  TripDetails: { records: Records, edit: Boolean };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();

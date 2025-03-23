@@ -2,19 +2,21 @@ import { LocationDto, Records } from "@/interface/interface";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { SectionList, ListRenderItem, StyleSheet, Text, TouchableOpacity, View, Image } from "react-native";
 import { RootStackParamList } from "../_layout";
-import { useNavigation } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AntDesign } from "@expo/vector-icons";
 import { useRoute } from "@react-navigation/native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Colors } from "@/constants/Colors";
+import { TopNavigateBar } from "@/components/TopNavigateBar";
 
 type TripDetailsScreenProp = StackNavigationProp<RootStackParamList, 'TripDetails'>;
 
 export default function TripDetails({}) {
     const navigation = useNavigation<TripDetailsScreenProp>();
     const route = useRoute();
-    const { records } = route.params as { records: Records };
+    const { records, edit } = route.params as { records: Records, edit: Boolean };
+    const [ currentTab, setCurrentTab ] = useState(0);
 
     const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set());
 
@@ -79,7 +81,8 @@ export default function TripDetails({}) {
                     <AntDesign name="back" size={24} color="black" onPress={() => navigation.goBack()} />
                 </TouchableOpacity>
             </View>
-            <View style={styles.listContainer}>
+            <TopNavigateBar labels={["Trip", "Hotel", "Checklist"]} current={currentTab} onTabChange={setCurrentTab}/>
+            {currentTab === 0 && <View style={styles.listContainer}>
                 <SectionList
                     sections={groupedData}
                     renderItem={renderItem}
@@ -88,30 +91,54 @@ export default function TripDetails({}) {
                     contentContainerStyle={styles.flatlist}
                     extraData={expandedSections}
                 />
-            </View>
-            <View style={[styles.horizontalListContainer, {backgroundColor: "#fff2d6"}]}>
-                { records.prompt.hotel ?
-                    <View
-                        style={[lightTheme.hotelContainer]}
-                    >
-                        <Text style={[lightTheme.sectionTitle, styles.textTitle, { color: Colors.themedColor.black }]}>Hotel</Text>
-                        <Text style={[lightTheme.hotelDescription, styles.textDesc]}>{records.prompt.hotel?.hotelName}</Text>
-                        <Text style={[lightTheme.hotelDescription, styles.textDesc]}>Hotel Address: {records.prompt.hotel?.hotelAddress}</Text>
-                        <Text style={[lightTheme.hotelDescription, styles.textDesc]}>Price: {records.prompt.hotel?.price}</Text>
-                        <Text style={[lightTheme.hotelDescription, styles.textDesc]}>Rating: {records.prompt.hotel?.rating}</Text>
-                    </View>:
+            </View>}
+            <View style={styles.horizontalListContainer}>
+            { records.prompt.hotel && currentTab === 1 && (
+                <View style={[lightTheme.hotelContainer]}>
+                    <Text style={[lightTheme.sectionTitle, styles.textTitle, { color: Colors.themedColor.black }]}>Hotel</Text>
+                    <Text style={[lightTheme.hotelDescription, styles.textDesc]}>{records.prompt.hotel.hotelName}</Text>
+                    <Text style={[lightTheme.hotelDescription, styles.textDesc]}>Hotel Address: {records.prompt.hotel.hotelAddress}</Text>
+                    <Text style={[lightTheme.hotelDescription, styles.textDesc]}>Price: {records.prompt.hotel.price}</Text>
+                    <Text style={[lightTheme.hotelDescription, styles.textDesc]}>Rating: {records.prompt.hotel.rating}</Text>
+                </View>
+            )}
+            { !records.prompt.hotel && currentTab === 1 && (
+                <View style={styles.horizontalCenter}>
+                    <View style={styles.center}>
+                        <Text style={styles.textTitle}>No hotel planned!</Text>
+                    </View>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", paddingHorizontal: 20 }}>
                     <View style={styles.center}>
                         <TouchableOpacity style={[styles.emptyContainer, styles.center]}> 
                             <Text style={styles.textDesc}> Add hotel </Text> 
                         </TouchableOpacity>
                     </View>
-                }
+                    <View style={styles.center}>
+                        <TouchableOpacity style={[styles.emptyContainer, styles.center]}> 
+                            <Text style={styles.textDesc}> Add using AI </Text> 
+                        </TouchableOpacity>
+                    </View>
+                </View>
+                </View>                
+            )}
+            { currentTab === 2 && (
+                <View style={styles.horizontalCenter}>
+                    <View style={styles.center}>
+                        <Text style={styles.textTitle}>Stay tuned for this function!</Text>
+                    </View>
+                </View>                
+            )}
             </View>
         </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
+    horizontalCenter:{
+        height: 500,
+        justifyContent: "center",
+        gap: 10
+    },
     hotelName: {
         fontFamily: 'OpenSans_Condensed-Bold',
         fontSize: 16

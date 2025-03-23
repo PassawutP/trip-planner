@@ -25,7 +25,8 @@ export const Colors = {
   },
   themedColor: {
     orange: '#FFA500',
-    lightOrange: '#fcce6a',
+    // lightOrange: '#fcce6a',
+    lightOrange: "#fff2d6",
     white: '#FFFFFF',
     black: '#000000',
     darkGray: '#333333',

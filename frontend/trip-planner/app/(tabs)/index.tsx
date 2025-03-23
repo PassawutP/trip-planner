@@ -31,7 +31,11 @@ export default function HomeScreen() {
   }
 
   const getTripDetails = async (item: Records) => {
-    navigation.navigate("TripDetails", { records: item });
+    navigation.navigate("TripDetails", { records: item, edit: false});
+  }
+
+  const editTripDetails = async (item: Records) => {
+    navigation.navigate("TripDetails", { records: item, edit: true})
   }
 
   useFocusEffect(
